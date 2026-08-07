@@ -1,6 +1,5 @@
 package crc.assignmentbase;
 
-// File location: src/main/java/Account.java
 // Supports the login gate in Driver.java
 
 /**

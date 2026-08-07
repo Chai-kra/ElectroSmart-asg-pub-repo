@@ -4,12 +4,7 @@ package crc.assignmentbase;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Holds login accounts and handles sign-in / registration. This is
- * intentionally separate from CustomerManager and StaffManager: it only
- * controls who is allowed to open the system, not the business data
- * itself.
- */
+
 public class AccountManager {
     private List<Account> accounts = new ArrayList<>();
 

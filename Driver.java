@@ -1,14 +1,5 @@
 package crc.assignmentbase;
 
-// File location: src/main/java/Driver.java
-// Base driver: this is the menu skeleton for the whole system. The
-// sign-in / register-account gate is fully implemented (see runGate()
-// and seedSampleAccounts()); every other menu option is a placeholder
-// that just prints a TODO message. Fill each placeholder in with the
-// matching manager class (CustomerManager, StaffManager, StoreManager)
-// as each module gets implemented.
-//
-// Run with: java -cp target/classes Driver
 
 import java.util.Scanner;
 
