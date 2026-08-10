@@ -1,6 +1,3 @@
-package crc.assignmentbase;
-
-
 import java.util.Scanner;
 
 public class Driver {

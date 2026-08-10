@@ -1,5 +1,3 @@
-package crc.assignmentbase;
-
 // Supports the login gate in Driver.java
 
 /**
