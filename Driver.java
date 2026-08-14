@@ -161,7 +161,7 @@ public class Driver {
             System.out.println("Customer ID cannot be empty.");
         } else if (customerManager.findByID(customerID) != null) {
             System.out.println("This Customer ID already exists.");
-        } else {22
+        } else {
             break;
         }
     }
