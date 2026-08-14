@@ -5,6 +5,7 @@ public class Driver {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
+        CustomerManager customerManager = new CustomerManager();
 
         seedSampleAccounts(accountManager);
 
@@ -42,7 +43,7 @@ public class Driver {
 
             switch (choice.toUpperCase()) {
                 case "1":
-                    registerCustomer(scanner);
+                    registerCustomer(scanner,customerManager);
                     break;
                 case "2":
                     registerStaff(scanner);
@@ -67,7 +68,7 @@ public class Driver {
                     break;
                 case "9":
                     if (currentAccount.getRole() == AccountRole.ADMIN) {
-                        manageData(scanner);
+                        manageData(scanner, customerManager);
                     } else {
                         System.out.println("Invalid option, please try again.");
                     }
@@ -149,11 +150,54 @@ public class Driver {
     // CustomerManager / StaffManager / StoreManager as that module is
     // implemented.
     // =========================================================
-    private static void registerCustomer(Scanner scanner) {
-        // TODO: prompt for customerID, name, email, membership status and
-        // call CustomerManager.registerCustomer(...). See Module B.
-        System.out.println("TODO: Register customer is not implemented yet.");
+    private static void registerCustomer(Scanner scanner, CustomerManager customerManager) {
+    System.out.println("\n--- Register New Customer ---");
+
+    String customerID;
+    while (true) {
+        System.out.print("Enter Customer ID (e.g. CUS001): ");
+        customerID = scanner.nextLine().trim();
+        if (customerID.isEmpty()) {
+            System.out.println("Customer ID cannot be empty.");
+        } else if (customerManager.findByID(customerID) != null) {
+            System.out.println("This Customer ID already exists.");
+        } else {22
+            break;
+        }
     }
+
+    System.out.print("Enter Name: ");
+    String name = scanner.nextLine().trim();
+
+    String email;
+    while (true) {
+        System.out.print("Enter Email: ");
+        email = scanner.nextLine().trim();
+        if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+            System.out.println("Invalid email format.");
+        } else {
+            break;
+        }
+    }
+
+    MembershipStatus status = null;
+    while (status == null) {
+        System.out.print("Membership Status (REGULAR/SILVER/GOLD): ");
+        try {
+            status = MembershipStatus.valueOf(scanner.nextLine().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid status. Try REGULAR, SILVER, or GOLD.");
+        }
+    }
+
+    try {
+        Customer newCustomer = new Customer(customerID, name, email, status);
+        customerManager.addCustomer(newCustomer);
+        System.out.println("Customer registered successfully: " + newCustomer);
+    } catch (DuplicateCustomerException | IllegalArgumentException e) {
+        System.out.println("Could not register customer: " + e.getMessage());
+    }
+}
 
     private static void registerStaff(Scanner scanner) {
         // TODO: prompt for name, role, email, annual salary and call
@@ -199,7 +243,7 @@ public class Driver {
     // =========================================================
     // Admin-only data management - placeholders.
     // =========================================================
-    private static void manageData(Scanner scanner) {
+    private static void manageData(Scanner scanner,CustomerManager customerManager) {
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Manage Data (Admin) ---");
