@@ -1,4 +1,4 @@
-public class Appliance implements WarrantyEligible {
+public abstract class Appliance implements WarrantyEligible {
 
     private String applianceID;
     private String modelName;
