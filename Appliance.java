@@ -1,15 +1,11 @@
-public class Appliance implements WarrantyEligible {
-
+public abstract class Appliance {
     private String applianceID;
     private String modelName;
     private String brand;
     private double basePrice;
     private int stockQuantity;
-    private Warranty warranty;
 
-    public Appliance(String applianceID, String modelName, String brand,
-                     double basePrice, int stockQuantity) {
-
+    public Appliance(String applianceID, String modelName, String brand, double basePrice, int stockQuantity) {
         this.applianceID = applianceID;
         this.modelName = modelName;
         this.brand = brand;
@@ -23,33 +19,18 @@ public class Appliance implements WarrantyEligible {
     public double getBasePrice() { return basePrice; }
     public int getStockQuantity() { return stockQuantity; }
 
-    public Warranty getWarranty() {
-        return warranty;
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
-    public void setWarranty(Warranty warranty) {
-        this.warranty = warranty;
+    public void reduceStock(int qty) {
+        this.stockQuantity = this.stockQuantity - qty;
     }
 
-    @Override
-    public void activateWarranty() {
-    if (warranty != null) {
-        warranty.activate();
-        }
-    }
-    
-    @Override
-    public void extendWarranty(int extraMonths) {
-    if (warranty != null) {
-        try {
-            warranty.extendWarranty(extraMonths);
-            } catch (InvalidWarrantyExtensionException e) {
-            System.out.println(e.getMessage());
-            }
-        }
+    public boolean isLowStock() {
+        return this.stockQuantity < 3;
     }
 
-    public double calculateFinalPrice() {
-        return basePrice;
-    }
+    // no body here — each subclass MUST provide its own version
+    public abstract double calculateFinalPrice();
 }
