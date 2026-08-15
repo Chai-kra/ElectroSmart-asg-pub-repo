@@ -1,13 +1,15 @@
-public class Appliance {
-    // Step A: private fields (encapsulation — nobody outside this class can touch these directly)
+public class Appliance implements WarrantyEligible {
+
     private String applianceID;
     private String modelName;
     private String brand;
     private double basePrice;
     private int stockQuantity;
+    private Warranty warranty;
 
-    // Step B: constructor — runs when you create a new Appliance
-    public Appliance(String applianceID, String modelName, String brand, double basePrice, int stockQuantity) {
+    public Appliance(String applianceID, String modelName, String brand,
+                     double basePrice, int stockQuantity) {
+
         this.applianceID = applianceID;
         this.modelName = modelName;
         this.brand = brand;
@@ -15,15 +17,39 @@ public class Appliance {
         this.stockQuantity = stockQuantity;
     }
 
-    // Step C: getters — how outside code reads private fields
     public String getApplianceID() { return applianceID; }
     public String getModelName() { return modelName; }
     public String getBrand() { return brand; }
     public double getBasePrice() { return basePrice; }
     public int getStockQuantity() { return stockQuantity; }
 
-    // Step D: a method every appliance will use
+    public Warranty getWarranty() {
+        return warranty;
+    }
+
+    public void setWarranty(Warranty warranty) {
+        this.warranty = warranty;
+    }
+
+    @Override
+    public void activateWarranty() {
+    if (warranty != null) {
+        warranty.activate();
+        }
+    }
+    
+    @Override
+    public void extendWarranty(int extraMonths) {
+    if (warranty != null) {
+        try {
+            warranty.extendWarranty(extraMonths);
+            } catch (InvalidWarrantyExtensionException e) {
+            System.out.println(e.getMessage());
+            }
+        }
+    }
+
     public double calculateFinalPrice() {
-        return basePrice; // base version — subclasses will override this
+        return basePrice;
     }
 }
