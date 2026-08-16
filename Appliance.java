@@ -45,6 +45,6 @@ public abstract class Appliance {    //zq
         return this.stockQuantity < 3;
     }
 
-    // no body here — each subclass MUST provide its own version
+    // each subclass MUST provide its own version (overriden by subclasses)
     public abstract double calculateFinalPrice();
 }

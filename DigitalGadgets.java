@@ -1,4 +1,4 @@
-public class DigitalGadgets extends Appliance { //zq
+public class DigitalGadgets extends Appliance {
     private String operatingSystem;
     private double powerConsumption;
     private static final double RECYCLING_LEVY_RATE = 0.02; // 2% of base price

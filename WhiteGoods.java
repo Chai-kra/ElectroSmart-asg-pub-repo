@@ -13,7 +13,7 @@ public class WhiteGoods extends Appliance { //zq
     public String getEnergyRating() { return energyRating; }
     public String getDimension() { return dimension; }
 
-    @Override
+    @Override   // replacing the parent's version
     public double calculateFinalPrice() {
         return getBasePrice() + DELIVERY_SURCHARGE;
     }
