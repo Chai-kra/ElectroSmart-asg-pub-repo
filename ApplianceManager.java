@@ -18,15 +18,13 @@ public class ApplianceManager {
         String modelName = scanner.nextLine();
         System.out.print("Brand: ");
         String brand = scanner.nextLine();
-        System.out.print("Base Price: ");
-        double basePrice = readDouble(scanner.nextLine());
-        System.out.print("Stock Quantity: ");
-        int stockQuantity = readInt(scanner.nextLine());
+        double basePrice = readDouble(scanner, "Base Price: ");
+        int stockQuantity = readInt(scanner, "Stock Qunatity: ");
 
         Appliance newAppliance;
 
         if (type.equals("1")) {
-            System.out.print("Energy Rating: ");
+            System.out.print("Energy Rating (1-5): ");
             String energyRating = scanner.nextLine();
             System.out.print("Dimension: ");
             String dimension = scanner.nextLine();
@@ -34,7 +32,6 @@ public class ApplianceManager {
         } else {
             System.out.print("Operating System: ");
             String operatingSystem = scanner.nextLine();
-            System.out.print("Power Consumption: ");
             double powerConsumption = readDouble(scanner, "Power Consumption: ");
             newAppliance = new DigitalGadgets(applianceID, modelName, brand, basePrice, stockQuantity, operatingSystem, powerConsumption);
         }

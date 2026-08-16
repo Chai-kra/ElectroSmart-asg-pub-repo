@@ -26,10 +26,10 @@ public abstract class Appliance {    //zq
     public String getBrand() {
         return brand;
     }
-    public String getBasePrice() {
+    public double getBasePrice() {
         return basePrice;
     }
-    public String getStockQuantity() {
+    public int getStockQuantity() {
         return stockQuantity;
     }
 
