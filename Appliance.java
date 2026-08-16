@@ -1,10 +1,12 @@
-public abstract class Appliance {   //zq
+public class Appliance {
+    // encapsulation (private field)
     private String applianceID;
     private String modelName;
     private String brand;
     private double basePrice;
     private int stockQuantity;
 
+    // constructor (when create a new Appliance)
     public Appliance(String applianceID, String modelName, String brand, double basePrice, int stockQuantity) {
         this.applianceID = applianceID;
         this.modelName = modelName;
@@ -13,24 +15,25 @@ public abstract class Appliance {   //zq
         this.stockQuantity = stockQuantity;
     }
 
-    public String getApplianceID() { return applianceID; }
-    public String getModelName() { return modelName; }
-    public String getBrand() { return brand; }
-    public double getBasePrice() { return basePrice; }
-    public int getStockQuantity() { return stockQuantity; }
-
-    public void setStockQuantity(int stockQuantity) {
-        this.stockQuantity = stockQuantity;
+    // getters
+    public String getApplianceID() {
+        return applianceID;
+    }
+    public String getmodelName() {
+        return modelName;
+    }
+    public String getBrand() {
+        return brand;
+    }
+    public String getBasePrice() {
+        return basePrice;
+    }
+    public String getStockQuantity() {
+        return stockQuantity;
     }
 
-    public void reduceStock(int qty) {
-        this.stockQuantity = this.stockQuantity - qty;
+    // method every appliance will use
+    public double calculateFinalPrice() {
+        return basePrice;
     }
-
-    public boolean isLowStock() {
-        return this.stockQuantity < 3;
-    }
-
-    // no body here — each subclass MUST provide its own version
-    public abstract double calculateFinalPrice();
 }
