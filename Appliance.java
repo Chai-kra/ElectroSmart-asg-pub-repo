@@ -1,4 +1,4 @@
-public class Appliance {
+public class Appliance {    //zq
     // encapsulation (private field)
     private String applianceID;
     private String modelName;

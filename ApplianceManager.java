@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class ApplianceManager { //zq
+public class ApplianceManager {
     private List<Appliance> inventory = new ArrayList<>();
 
     public void addAppliance(Scanner scanner) {
@@ -11,11 +11,11 @@ public class ApplianceManager { //zq
         System.out.println("2. DigitalGadgets");
         String type = scanner.nextLine();
 
-        System.out.print("Appliance ID: ");
+        System.out.println("Appliance ID: ");
         String applianceID = scanner.nextLine();
         System.out.print("Model Name: ");
         String modelName = scanner.nextLine();
-        System.out.print("Brand: ");
+        System.out.println("Brand: ");
         String brand = scanner.nextLine();
         System.out.print("Base Price: ");
         double basePrice = Double.parseDouble(scanner.nextLine());
@@ -25,7 +25,7 @@ public class ApplianceManager { //zq
         Appliance newAppliance;
 
         if (type.equals("1")) {
-            System.out.print("Energy Rating: ");
+            System.out.println("Energy Rating: ");
             String energyRating = scanner.nextLine();
             System.out.print("Dimension: ");
             String dimension = scanner.nextLine();
@@ -43,10 +43,10 @@ public class ApplianceManager { //zq
     }
 
     public void viewLowStock() {
-        System.out.println("Low stock appliances (below 3 units):");
+        System.out.println("Appliance added successfully!");
         for (Appliance a : inventory) {
             if (a.isLowStock()) {
-                System.out.println(a.getModelName() + " - Stock: " + a.getStockQuantity());
+                System.out.print(a.getModelName() + " - Stock: " + getStockQuantity());
             }
         }
     }
