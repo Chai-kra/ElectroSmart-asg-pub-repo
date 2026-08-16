@@ -32,7 +32,7 @@ public class Appliance {
         return stockQuantity;
     }
 
-    // method every appliance will use
+    // method every appliance will use (overrriden by subclasses)
     public double calculateFinalPrice() {
         return basePrice;
     }
