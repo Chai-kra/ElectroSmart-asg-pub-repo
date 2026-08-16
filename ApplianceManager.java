@@ -12,11 +12,11 @@ public class ApplianceManager {
         System.out.print("Select an option: ");
         String type = scanner.nextLine();
 
-        System.out.println("Appliance ID: ");
+        System.out.print("Appliance ID: ");
         String applianceID = scanner.nextLine();
         System.out.print("Model Name: ");
         String modelName = scanner.nextLine();
-        System.out.println("Brand: ");
+        System.out.print("Brand: ");
         String brand = scanner.nextLine();
         System.out.print("Base Price: ");
         double basePrice = Double.parseDouble(scanner.nextLine());

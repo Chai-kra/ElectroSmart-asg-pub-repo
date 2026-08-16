@@ -5,6 +5,7 @@ public abstract class Appliance {    //zq
     private String brand;
     private double basePrice;
     private int stockQuantity;
+    private Warranty warranty;
 
     // constructor (when create a new Appliance)
     public Appliance(String applianceID, String modelName, String brand, double basePrice, int stockQuantity) {
@@ -47,4 +48,23 @@ public abstract class Appliance {    //zq
 
     // each subclass MUST provide its own version (overriden by subclasses)
     public abstract double calculateFinalPrice();
+
+    @Override
+    public void activateWarranty() {
+        this.warranty = new Warranty(
+            "W-" + this.applianceID,   // simple warrantyID scheme, adjust as your team prefers
+            this.applianceID,          // using applianceID as the "serial number" link
+            getDefaultProvider(),
+            getDefaultDuration()
+        );
+        warranty.activate();
+    }
+
+    @Override
+    public void extendWarranty(int extraMonths) throws InvalidWarrantyExtensionException {
+        if (this.warranty == null) {
+            throw new InvalidWarrantyExtensionException("No warranty has been activated for this appliance yet.");
+        }
+        this.warranty.extendWarranty(extraMonths);
+    }
 }
