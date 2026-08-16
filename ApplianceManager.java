@@ -19,9 +19,9 @@ public class ApplianceManager {
         System.out.print("Brand: ");
         String brand = scanner.nextLine();
         System.out.print("Base Price: ");
-        double basePrice = Double.parseDouble(scanner.nextLine());
+        double basePrice = readDouble(scanner.nextLine());
         System.out.print("Stock Quantity: ");
-        int stockQuantity = Integer.parseInt(scanner.nextLine());
+        int stockQuantity = readInt(scanner.nextLine());
 
         Appliance newAppliance;
 
@@ -35,7 +35,7 @@ public class ApplianceManager {
             System.out.print("Operating System: ");
             String operatingSystem = scanner.nextLine();
             System.out.print("Power Consumption: ");
-            double powerConsumption = Double.parseDouble(scanner.nextLine());
+            double powerConsumption = readDouble(scanner, "Power Consumption: ");
             newAppliance = new DigitalGadgets(applianceID, modelName, brand, basePrice, stockQuantity, operatingSystem, powerConsumption);
         }
 
@@ -48,6 +48,32 @@ public class ApplianceManager {
         for (Appliance a : inventory) {
             if (a.isLowStock()) {
                 System.out.print(a.getModelName() + " - Stock: " + getStockQuantity());
+            }
+        }
+    }
+
+    // Validation: Invalid number(double) helper
+    private double readDouble(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number — please enter digits only (e.g. 100 or 100.5).");
+            }
+        }
+    }
+
+    // Validation: Invalid number(int) helper
+    private int readInt(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number — please enter a whole number only.");
             }
         }
     }
