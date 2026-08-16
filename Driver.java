@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Driver {
 
-    // Helper: clear screen (uses ANSI escape code) --ziqi
+    // Helper: clear screen (uses ANSI escape code) --zq
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
@@ -13,6 +13,7 @@ public class Driver {
         AccountManager accountManager = new AccountManager();
         CustomerManager customerManager = new CustomerManager();
         ApplianceManager applianceManager = new ApplianceManager(); //zq
+        applianceManager.loadSampleData();  //zq
 
         seedSampleAccounts(accountManager);
 
@@ -20,7 +21,7 @@ public class Driver {
         boolean exitProgram = false;
 
         while (!exitProgram) {
-            clearScreen();  // ziqi
+            clearScreen();  // zq
             // ---- Gate: only sign in or register an account is available here ----
             if (currentAccount == null) {
                 currentAccount = runGate(scanner, accountManager);

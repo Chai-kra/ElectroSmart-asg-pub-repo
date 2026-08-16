@@ -51,6 +51,12 @@ public class ApplianceManager {
 
     }
 
+    public void loadSampleData() {
+        inventory.add(new WhiteGoods("A001", "Fridge X1", "Samsung", 1500.00, 10, "5-star", "180x60x65cm"));
+        inventory.add(new DigitalGadgets("A002", "Smart TV Y2", "Sony", 2000.00, 2, "Android TV", 150.0));
+        inventory.add(new WhiteGoods("A003", "Washer Z3", "LG", 1200.00, 1, "4-star", "60x60x85cm"));
+    }
+
     // =========================================================
     // HELPER
     // =========================================================
