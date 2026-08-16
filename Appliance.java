@@ -1,4 +1,4 @@
-public class Appliance {    //zq
+public abstract class Appliance {    //zq
     // encapsulation (private field)
     private String applianceID;
     private String modelName;
@@ -32,8 +32,19 @@ public class Appliance {    //zq
         return stockQuantity;
     }
 
-    // method every appliance will use (overrriden by subclasses)
-    public double calculateFinalPrice() {
-        return basePrice;
+    // setter
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
+
+    public void reduceStock(int qty) {
+        this.stockQuantity = this.stockQuantity - qty;
+    }
+
+    public boolean isLowStock() {
+        return this.stockQuantity < 3;
+    }
+
+    // no body here — each subclass MUST provide its own version
+    public abstract double calculateFinalPrice();
 }
