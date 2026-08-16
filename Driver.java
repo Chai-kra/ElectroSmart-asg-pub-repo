@@ -2,6 +2,12 @@ import java.util.Scanner;
 
 public class Driver {
 
+    // Helper: clear screen (uses ANSI escape code) --ziqi
+    private static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
@@ -14,6 +20,7 @@ public class Driver {
         boolean exitProgram = false;
 
         while (!exitProgram) {
+            clearScreen();  // ziqi
             // ---- Gate: only sign in or register an account is available here ----
             if (currentAccount == null) {
                 currentAccount = runGate(scanner, accountManager);
@@ -59,7 +66,7 @@ public class Driver {
                     extendWarranty(scanner);
                     break;
                 case "6":
-                    applianceManager.viewLowStock();    //zq
+                    applianceManager.viewLowStock(scanner);    //zq
                     break;
                 case "7":
                     searchWarranty(scanner);

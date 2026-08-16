@@ -40,16 +40,21 @@ public class ApplianceManager {
         System.out.println("Appliance added successfully!");
     }
 
-    public void viewLowStock() {
+    public void viewLowStock(Scanner scanner) {
         System.out.println("Low stock appliances (below 3 units):");
         for (Appliance a : inventory) {
             if (a.isLowStock()) {
-                System.out.print(a.getModelName() + " - Stock: " + a.getStockQuantity());
+                System.out.println(a.getModelName() + " - Stock: " + a.getStockQuantity());
             }
         }
+        pause(scanner);
+
     }
 
-    // Validation: Invalid number(double) helper
+    // =========================================================
+    // HELPER
+    // =========================================================
+    // Helper: Validation - Invalid number(double) 
     private double readDouble(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -62,7 +67,7 @@ public class ApplianceManager {
         }
     }
 
-    // Validation: Invalid number(int) helper
+    // Helper: Validation - Invalid number(int) 
     private int readInt(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -73,5 +78,11 @@ public class ApplianceManager {
                 System.out.println("Invalid number — please enter a whole number only.");
             }
         }
+    }
+
+    // Helper: press enter to return
+    private void pause(Scanner scanner) {
+        System.out.println("\nPress Enter to return to the menu...");
+        scanner.nextLine();
     }
 }
