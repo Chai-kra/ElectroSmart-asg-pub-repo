@@ -44,10 +44,10 @@ public class ApplianceManager {
     }
 
     public void viewLowStock() {
-        System.out.println("Appliance added successfully!");
+        System.out.println("Low stock appliances (below 3 units):");
         for (Appliance a : inventory) {
             if (a.isLowStock()) {
-                System.out.print(a.getModelName() + " - Stock: " + getStockQuantity());
+                System.out.print(a.getModelName() + " - Stock: " + a.getStockQuantity());
             }
         }
     }
