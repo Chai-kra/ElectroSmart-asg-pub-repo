@@ -6,6 +6,7 @@ public class Driver {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
         CustomerManager customerManager = new CustomerManager();
+        ApplianceManager applianceManager = new ApplianceManager(); //zq
 
         seedSampleAccounts(accountManager);
 
@@ -49,7 +50,7 @@ public class Driver {
                     registerStaff(scanner);
                     break;
                 case "3":
-                    addAppliance(scanner);
+                    applianceManager.addAppliance(scanner); //zq
                     break;
                 case "4":
                     processSale(scanner);
@@ -58,7 +59,7 @@ public class Driver {
                     extendWarranty(scanner);
                     break;
                 case "6":
-                    viewLowStock();
+                    applianceManager.viewLowStock();    //zq
                     break;
                 case "7":
                     searchWarranty(scanner);

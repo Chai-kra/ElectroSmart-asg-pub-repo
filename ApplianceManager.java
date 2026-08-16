@@ -9,6 +9,7 @@ public class ApplianceManager {
         System.out.println("Add Appliance - choose type:");
         System.out.println("1. WhiteGoods");
         System.out.println("2. DigitalGadgets");
+        System.out.print("Select an option: ");
         String type = scanner.nextLine();
 
         System.out.println("Appliance ID: ");
@@ -25,7 +26,7 @@ public class ApplianceManager {
         Appliance newAppliance;
 
         if (type.equals("1")) {
-            System.out.println("Energy Rating: ");
+            System.out.print("Energy Rating: ");
             String energyRating = scanner.nextLine();
             System.out.print("Dimension: ");
             String dimension = scanner.nextLine();
