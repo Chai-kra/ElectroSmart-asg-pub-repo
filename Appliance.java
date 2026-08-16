@@ -19,7 +19,7 @@ public class Appliance {
     public String getApplianceID() {
         return applianceID;
     }
-    public String getmodelName() {
+    public String getModelName() {
         return modelName;
     }
     public String getBrand() {
