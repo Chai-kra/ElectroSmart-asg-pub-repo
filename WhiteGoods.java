@@ -1,4 +1,4 @@
-public class WhiteGoods extends Appliance {
+public class WhiteGoods extends Appliance { //zq
     private String energyRating;
     private String dimension;
     private static final double DELIVERY_SURCHARGE = 50.0;

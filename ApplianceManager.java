@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class ApplianceManager {
+public class ApplianceManager { //zq
     private List<Appliance> inventory = new ArrayList<>();
 
     public void addAppliance(Scanner scanner) {

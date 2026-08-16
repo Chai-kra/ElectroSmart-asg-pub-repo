@@ -1,4 +1,4 @@
-public abstract class Appliance {
+public abstract class Appliance {   //zq
     private String applianceID;
     private String modelName;
     private String brand;
