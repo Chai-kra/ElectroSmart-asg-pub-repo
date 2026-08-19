@@ -1,6 +1,6 @@
 public interface WarrantyEligible {
 
-    void activateWarranty();
+    void activateWarranty(Staff staff);
 
-    void extendWarranty(int extraMonths);
+    void extendWarranty(int extraMonths, Staff staff) throws InvalidWarrantyExtensionException;
 }

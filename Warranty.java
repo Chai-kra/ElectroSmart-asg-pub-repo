@@ -5,6 +5,7 @@ public class Warranty {
     private String provider;
     private int durationMonths;
     private boolean isExtended;
+    private Staff handledBy;
 
     public Warranty(String warrantyID, String serialNumber, String provider, int durationMonths) {
     this.warrantyID = warrantyID;
@@ -34,8 +35,19 @@ public class Warranty {
         return isExtended;
     }
 
-    public void extendWarranty(int extraMonths)
+    /** The staff member who activated or most recently extended this warranty. -- Chai*/
+    public Staff getHandledBy() {
+        return handledBy;
+    }
+
+    public void extendWarranty(int extraMonths, Staff staff)
         throws InvalidWarrantyExtensionException {
+
+    if (staff == null) { /** Staff requirement for extending waranty*/
+        throw new InvalidWarrantyExtensionException(
+                "A staff member must be supplied to extend a warranty."
+        );
+    }
 
     if (extraMonths <= 0) {
         throw new InvalidWarrantyExtensionException(
@@ -51,13 +63,15 @@ public class Warranty {
 
     durationMonths = durationMonths + extraMonths;
     isExtended = true;
-    }
-    
-    public void activate() {
-    System.out.println("Warranty " + warrantyID + " is activated.");
+    handledBy = staff;
     }
 
-
-
+    public void activate(Staff staff) {
+    if (staff == null) {
+        throw new IllegalArgumentException("A staff member must be supplied to activate a warranty.");
+    }
+    handledBy = staff;
+    System.out.println("Warranty " + warrantyID + " is activated by " + staff.getName() + ".");
+    }
 
 }

@@ -14,6 +14,7 @@ public class Driver {
         CustomerManager customerManager = new CustomerManager();
         ApplianceManager applianceManager = new ApplianceManager(); //zq
         applianceManager.loadSampleData();  //zq
+        StaffManager staffManager = new StaffManager();
 
         seedSampleAccounts(accountManager);
 
@@ -45,6 +46,7 @@ public class Driver {
             if (currentAccount.getRole() == AccountRole.ADMIN) {
                 System.out.println("9. Manage data (view / edit / clear) [ADMIN]");
             }
+            System.out.println("R. View a staff member's sales report");
             System.out.println("L. Log out");
             System.out.println("0. Exit");
             System.out.print("Select an option: ");
@@ -55,7 +57,7 @@ public class Driver {
                     registerCustomer(scanner,customerManager);
                     break;
                 case "2":
-                    registerStaff(scanner);
+                    registerStaff(scanner, staffManager);
                     break;
                 case "3":
                     applianceManager.addAppliance(scanner); //zq
@@ -81,6 +83,9 @@ public class Driver {
                     } else {
                         System.out.println("Invalid option, please try again.");
                     }
+                    break;
+                case "R":
+                    viewStaffSalesReport(scanner, staffManager);
                     break;
                 case "L":
                     System.out.println("Logged out.");
@@ -208,10 +213,85 @@ public class Driver {
     }
 }
 
-    private static void registerStaff(Scanner scanner) {
-        // TODO: prompt for name, role, email, annual salary and call
-        // StaffManager.registerStaff(...). See Staff module.
-        System.out.println("TODO: Register staff is not implemented yet.");
+    // =========================================================
+    // Staff module (Chua Ren Chun)
+    // =========================================================
+    private static void registerStaff(Scanner scanner, StaffManager staffManager) {
+        System.out.println("\n--- Register New Staff ---");
+
+        String staffID;
+        while (true) {
+            System.out.print("Enter Staff ID (e.g. STF001): ");
+            staffID = scanner.nextLine().trim();
+            if (staffID.isEmpty()) {
+                System.out.println("Staff ID cannot be empty.");
+            } else if (staffManager.findByID(staffID) != null) {
+                System.out.println("This Staff ID already exists.");
+            } else {
+                break;
+            }
+        }
+
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine().trim();
+
+        System.out.print("Enter Role (e.g. Sales Associate, Manager): ");
+        String role = scanner.nextLine().trim();
+
+        String email;
+        while (true) {
+            System.out.print("Enter Email: ");
+            email = scanner.nextLine().trim();
+            if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+                System.out.println("Invalid email format.");
+            } else {
+                break;
+            }
+        }
+
+        double annualSalary;
+        while (true) {
+            System.out.print("Enter Annual Salary: ");
+            String salaryInput = scanner.nextLine().trim();
+            try {
+                annualSalary = Double.parseDouble(salaryInput);
+                if (annualSalary < 0) {
+                    System.out.println("Annual salary cannot be negative.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number — please enter digits only (e.g. 45000 or 45000.50).");
+            }
+        }
+
+        try {
+            Staff newStaff = new Staff(staffID, name, role, email, annualSalary);
+            staffManager.registerStaff(newStaff);
+            System.out.println("Staff registered successfully: " + newStaff);
+        } catch (DuplicateStaffException | IllegalArgumentException e) {
+            System.out.println("Could not register staff: " + e.getMessage());
+        }
+    }
+
+    private static void viewStaffSalesReport(Scanner scanner, StaffManager staffManager) {
+        System.out.print("\nEnter Staff ID to view their sales report: ");
+        String staffID = scanner.nextLine().trim();
+        Staff staff = staffManager.findByID(staffID);
+        if (staff == null) {
+            System.out.println("No staff found with ID " + staffID);
+            return;
+        }
+
+        System.out.println("Sales report for " + staff);
+        java.util.List<Transaction> sales = staffManager.getSalesByStaff(staffID);
+        if (sales.isEmpty()) {
+            System.out.println("No sales recorded for this staff member yet.");
+        } else {
+            for (Transaction t : sales) {
+                System.out.println("  " + t);
+            }
+        }
     }
 
     private static void addAppliance(Scanner scanner) {
@@ -223,7 +303,9 @@ public class Driver {
 
     private static void processSale(Scanner scanner) {
         // TODO: prompt for applianceID, customerID, quantity, staffID and
-        // call StoreManager.processSale(...).
+        // call StoreManager.processSale(...). Once wired up, the resulting
+        // Transaction must be recorded via StaffManager.recordSale(...) so it
+        // shows up in the staff sales report.
         System.out.println("TODO: Process sale is not implemented yet.");
     }
 
