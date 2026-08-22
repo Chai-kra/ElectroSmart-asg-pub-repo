@@ -22,7 +22,7 @@ public class Driver {
         boolean exitProgram = false;
 
         while (!exitProgram) {
-            clearScreen();  // zq
+            clearScreen();  
             // ---- Gate: only sign in or register an account is available here ----
             if (currentAccount == null) {
                 currentAccount = runGate(scanner, accountManager);
@@ -75,6 +75,7 @@ public class Driver {
                     } catch (InvalidWarrantyExtensionException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
+                    pause(scanner);
                     break;
                 case "5":
                     extendWarranty(scanner);

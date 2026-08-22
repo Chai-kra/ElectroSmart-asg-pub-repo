@@ -57,41 +57,69 @@ public void addAppliance(Scanner scanner) throws DuplicateApplianceException {
 
     // SALES
     public void processSale(Scanner scanner, CustomerManager customerManager, StaffManager staffManager)
-        throws InvalidWarrantyExtensionException {
+            throws InvalidWarrantyExtensionException {
 
-        System.out.print("Appliance ID: ");
-        String applianceID = scanner.nextLine();
-        Appliance appliance = findApplianceByID(applianceID);
-        if (appliance == null) {
-            System.out.println("No appliance found with that ID.");
+        System.out.println("\n=== Available Appliances ===");
+        if (inventory.isEmpty()) {
+            System.out.println("No appliances in inventory yet.");
             return;
         }
-
-        System.out.print("Customer ID: ");
-        String customerID = scanner.nextLine();
-        Customer customer = customerManager.findByID(customerID);
-        if (customer == null) {
-            System.out.println("No customer found with that ID.");
-            return;
+        for (Appliance a : inventory) {
+            System.out.println(a.getApplianceID() + " | " + a);
         }
 
-        System.out.print("Staff ID: ");
-        String staffID = scanner.nextLine();
-        Staff staff = staffManager.findByID(staffID);
-        if (staff == null) {
-            System.out.println("No staff found with that ID.");
-            return;
+        Appliance appliance = null;
+        while (appliance == null) {
+            System.out.print("\nEnter Appliance ID (0 to cancel): ");
+            String applianceID = scanner.nextLine();
+            if (applianceID.equals("0")) { System.out.println("Sale cancelled."); return; }
+            appliance = findApplianceByID(applianceID);
+            if (appliance == null) {
+                System.out.println("No appliance found with ID \"" + applianceID + "\". Please try again.");
+            }
         }
 
-        System.out.print("Quantity: ");
-        int quantity = Integer.parseInt(scanner.nextLine());
-        if (quantity <= 0) {
-            System.out.println("Quantity must be at least 1.");
-            return;
+        Customer customer = null;
+        while (customer == null) {
+            System.out.print("Enter Customer ID (0 to cancel): ");
+            String customerID = scanner.nextLine();
+            if (customerID.equals("0")) { System.out.println("Sale cancelled."); return; }
+            customer = customerManager.findByID(customerID);
+            if (customer == null) {
+                System.out.println("No customer found with ID \"" + customerID + "\". Register them first, or try again.");
+            }
         }
-        if (quantity > appliance.getStockQuantity()) {
-            System.out.println("Not enough stock available. Only " + appliance.getStockQuantity() + " left.");
-            return;
+
+        Staff staff = null;
+        while (staff == null) {
+            System.out.print("Enter Staff ID (0 to cancel): ");
+            String staffID = scanner.nextLine();
+            if (staffID.equals("0")) { System.out.println("Sale cancelled."); return; }
+            staff = staffManager.findByID(staffID);
+            if (staff == null) {
+                System.out.println("No staff found with ID \"" + staffID + "\". Please try again.");
+            }
+        }
+
+        int quantity = 0;
+        while (true) {
+            System.out.print("Enter Quantity (Available: " + appliance.getStockQuantity() + "): ");
+            String input = scanner.nextLine();
+            try {
+                quantity = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number — please enter a whole number.");
+                continue;
+            }
+            if (quantity <= 0) {
+                System.out.println("Quantity must be at least 1.");
+                continue;
+            }
+            if (quantity > appliance.getStockQuantity()) {
+                System.out.println("Not enough stock — only " + appliance.getStockQuantity() + " available. Enter a smaller amount.");
+                continue;
+            }
+            break;
         }
 
         double unitPrice = appliance.calculateFinalPrice();
@@ -101,10 +129,14 @@ public void addAppliance(Scanner scanner) throws DuplicateApplianceException {
         appliance.reduceStock(quantity);
         appliance.activateWarranty(staff);
 
-        Transaction transaction = new Transaction(applianceID, customerID, quantity, totalPrice, staff);
+        Transaction transaction = new Transaction(appliance.getApplianceID(), customer.getCustomerID(), quantity, totalPrice, staff);
         staffManager.recordSale(transaction);
 
-        System.out.printf("Sale complete! %d x %s | Total charged: RM%.2f%n", quantity, appliance.getModelName(), totalPrice);
+        System.out.println("\n=== Sale Complete ===");
+        System.out.printf("%d x %s%n", quantity, appliance.getModelName());
+        System.out.println("Customer: " + customer.getName() + " (" + customer.getMemberShipStatus() + ")");
+        System.out.println("Staff: " + staff.getName());
+        System.out.printf("Total charged: RM%.2f%n", totalPrice);
     }
 
 
