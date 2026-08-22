@@ -8,6 +8,12 @@ public class Driver {
         System.out.flush();
     }
 
+    // Helper: "press Enter to continue"
+    private static void pause(Scanner scanner) {
+        System.out.println("\nPress Enter to return to the menu...");
+        scanner.nextLine();
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
