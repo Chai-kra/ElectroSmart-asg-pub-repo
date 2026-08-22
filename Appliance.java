@@ -9,6 +9,17 @@ public abstract class Appliance implements WarrantyEligible {    //zq
 
     // constructor (when create a new Appliance)
     public Appliance(String applianceID, String modelName, String brand, double basePrice, int stockQuantity) {
+        // validation
+        if (applianceID == null || applianceID.isBlank()) {
+            throw new IllegalArgumentException("Appliance ID cannot be empty.");
+        }
+        if (basePrice < 0) {
+            throw new IllegalArgumentException("Base price cannot be negative.");
+        }
+        if (stockQuantity < 0) {
+            throw new IllegalArgumentException("Stock quantity cannot be negative.");
+        }
+
         this.applianceID = applianceID;
         this.modelName = modelName;
         this.brand = brand;

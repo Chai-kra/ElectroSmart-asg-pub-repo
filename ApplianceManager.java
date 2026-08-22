@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class ApplianceManager {
     private List<Appliance> inventory = new ArrayList<>();
 
-    public void addAppliance(Scanner scanner) {
+public void addAppliance(Scanner scanner) throws DuplicateApplianceException {
         System.out.println("Add Appliance - choose type:");
         System.out.println("1. WhiteGoods");
         System.out.println("2. DigitalGadgets");
@@ -14,6 +14,11 @@ public class ApplianceManager {
 
         System.out.print("Appliance ID: ");
         String applianceID = scanner.nextLine();
+        // duplicate check
+        if (findApplianceByID(applianceID) != null) {
+            throw new DuplicateApplianceException("An appliance with ID " + applianceID + " already exists.");
+        }
+
         System.out.print("Model Name: ");
         String modelName = scanner.nextLine();
         System.out.print("Brand: ");

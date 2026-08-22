@@ -60,8 +60,15 @@ public class Driver {
                     registerStaff(scanner, staffManager);
                     break;
                 case "3":
-                    applianceManager.addAppliance(scanner); //zq
-                    break;
+                    try {
+                            applianceManager.addAppliance(scanner);
+                            System.out.println("Appliance added successfully!");
+                        } catch (DuplicateApplianceException e) {
+                            System.out.println("Error: " + e.getMessage());
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Error: " + e.getMessage());
+                        }
+                        break;
                 case "4":
                     processSale(scanner);
                     break;
