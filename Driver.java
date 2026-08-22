@@ -70,7 +70,11 @@ public class Driver {
                         }
                         break;
                 case "4":
-                    processSale(scanner);
+                    try {
+                        applianceManager.processSale(scanner, customerManager, staffManager);
+                    } catch (InvalidWarrantyExtensionException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
                 case "5":
                     extendWarranty(scanner);
