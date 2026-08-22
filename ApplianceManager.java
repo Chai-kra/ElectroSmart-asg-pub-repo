@@ -57,6 +57,15 @@ public class ApplianceManager {
         inventory.add(new WhiteGoods("A003", "Washer Z3", "LG", 1200.00, 1, "4-star", "60x60x85cm"));
     }
 
+    public Appliance findApplianceByID(String applianceID) {
+    for (Appliance a : inventory) {
+        if (a.getApplianceID().equals(applianceID)) {
+            return a;
+        }
+    }
+    return null; // not found
+}
+
     // =========================================================
     // HELPER
     // =========================================================

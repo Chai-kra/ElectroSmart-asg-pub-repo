@@ -70,4 +70,9 @@ public abstract class Appliance implements WarrantyEligible {    //zq
         }
         this.warranty.extendWarranty(extraMonths, staff);
     }
+
+    @Override
+    public String toString() {
+        return modelName + " (" + brand + ") - RM" + calculateFinalPrice() + " | Stock " + stockQuantity;
+    }
 }
