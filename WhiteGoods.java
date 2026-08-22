@@ -17,4 +17,14 @@ public class WhiteGoods extends Appliance { //zq
     public double calculateFinalPrice() {
         return getBasePrice() + DELIVERY_SURCHARGE;
     }
+
+    @Override
+        protected String getDefaultProvider() {
+            return "Manufacturer";
+        }
+
+        @Override
+        protected int getDefaultDuration() {
+            return 24;
+        }
 }

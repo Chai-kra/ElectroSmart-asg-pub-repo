@@ -17,4 +17,14 @@ public class DigitalGadgets extends Appliance {
     public double calculateFinalPrice() {
         return getBasePrice() + (getBasePrice() * RECYCLING_LEVY_RATE);
     }
+
+    @Override
+        protected String getDefaultProvider() {
+            return "Store";
+        }
+
+        @Override
+        protected int getDefaultDuration() {
+            return 12;
+        }
 }
