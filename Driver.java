@@ -12,7 +12,7 @@ public class Driver {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
         CustomerManager customerManager = new CustomerManager();
-        ApplianceManager applianceManager = new ApplianceManager(); //zq
+        ApplianceManager applianceManager = new ApplianceManager(); //zq1
         applianceManager.loadSampleData();  //zq
         StaffManager staffManager = new StaffManager();
 
