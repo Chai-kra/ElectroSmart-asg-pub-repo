@@ -1,4 +1,4 @@
-public class WhiteGoods extends Appliance { //zq
+public class WhiteGoods extends Appliance {
     private String energyRating;
     private String dimension;
     private static final double DELIVERY_SURCHARGE = 50.0;
@@ -13,18 +13,12 @@ public class WhiteGoods extends Appliance { //zq
     public String getEnergyRating() { return energyRating; }
     public String getDimension() { return dimension; }
 
-    @Override   // replacing the parent's version
-    public double calculateFinalPrice() {
-        return getBasePrice() + DELIVERY_SURCHARGE;
-    }
+    @Override
+    public double calculateFinalPrice() { return getBasePrice() + DELIVERY_SURCHARGE; }
 
     @Override
-        protected String getDefaultProvider() {
-            return "Manufacturer";
-        }
+    protected String getDefaultProvider() { return "Manufacturer"; }
 
-        @Override
-        protected int getDefaultDuration() {
-            return 24;
-        }
+    @Override
+    protected int getDefaultDuration() { return 24; }
 }
