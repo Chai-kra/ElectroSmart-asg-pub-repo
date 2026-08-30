@@ -28,9 +28,14 @@ public abstract class Appliance implements WarrantyEligible {
     public String getBrand() { return brand; }
     public double getBasePrice() { return basePrice; }
     public int getStockQuantity() { return stockQuantity; }
+    public Warranty getWarranty() { return warranty; }
 
+    public void setModelName(String modelName) { this.modelName = modelName; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public void setBasePrice(double basePrice) { this.basePrice = basePrice; }
     public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
-    public void reduceStock(int qty) { this.stockQuantity = this.stockQuantity - qty; }
+
+    public void reduceStock(int qty) { this.stockQuantity -= qty; }
     public boolean isLowStock() { return this.stockQuantity < 3; }
     public boolean hasWarranty() { return this.warranty != null; }
 
@@ -59,6 +64,6 @@ public abstract class Appliance implements WarrantyEligible {
 
     @Override
     public String toString() {
-        return modelName + " (" + brand + ") - RM" + calculateFinalPrice() + " | Stock " + stockQuantity;
+        return modelName + " (" + brand + ") - RM" + String.format("%.2f", calculateFinalPrice()) + " | Stock " + stockQuantity;
     }
 }

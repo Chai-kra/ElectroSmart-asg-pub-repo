@@ -1,5 +1,5 @@
-public class DuplicateApplianceException extends Exception {
-    public DuplicateApplianceException(String message) {
+public class DuplicateAccountException extends Exception {
+    public DuplicateAccountException(String message) {
         super(message);
     }
 }

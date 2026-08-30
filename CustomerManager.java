@@ -1,28 +1,32 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomerManager{
+public class CustomerManager {
     private List<Customer> customers = new ArrayList<>();
-    
-    public void addCustomer(Customer c) throws DuplicateCustomerException{
-        for (Customer existing:customers){
-            if(existing.getCustomerID().equalsIgnoreCase(c.getCustomerID())){
-                throw new DuplicateCustomerException("Customer ID" + c.getCustomerID() + "already exists.");
+
+    public void addCustomer(Customer c) throws DuplicateCustomerException {
+        for (Customer existing : customers) {
+            if (existing.getCustomerID().equalsIgnoreCase(c.getCustomerID())) {
+                throw new DuplicateCustomerException("Customer ID " + c.getCustomerID() + " already exists.");
             }
         }
         customers.add(c);
     }
 
-    public Customer findByID(String customerID){
-        for(Customer c: customers){
-            if(c.getCustomerID().equalsIgnoreCase(customerID)){
+    public Customer findByID(String customerID) {
+        for (Customer c : customers) {
+            if (c.getCustomerID().equalsIgnoreCase(customerID)) {
                 return c;
             }
         }
-        return null; // caller checks for null
+        return null;
     }
 
-    public List<Customer>getAllCustomers(){
+    public List<Customer> getAllCustomers() {
         return customers;
+    }
+
+    public void clearCustomers() {
+        customers.clear();
     }
 }

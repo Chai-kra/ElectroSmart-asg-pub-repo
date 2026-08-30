@@ -12,13 +12,13 @@ public class DigitalGadgets extends Appliance {
 
     public String getOperatingSystem() { return operatingSystem; }
     public double getPowerConsumption() { return powerConsumption; }
+    public void setOperatingSystem(String operatingSystem) { this.operatingSystem = operatingSystem; }
+    public void setPowerConsumption(double powerConsumption) { this.powerConsumption = powerConsumption; }
 
     @Override
     public double calculateFinalPrice() { return getBasePrice() + (getBasePrice() * RECYCLING_LEVY_RATE); }
-
     @Override
     protected String getDefaultProvider() { return "Store"; }
-
     @Override
     protected int getDefaultDuration() { return 12; }
 }

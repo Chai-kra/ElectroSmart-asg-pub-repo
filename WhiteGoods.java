@@ -12,13 +12,13 @@ public class WhiteGoods extends Appliance {
 
     public String getEnergyRating() { return energyRating; }
     public String getDimension() { return dimension; }
+    public void setEnergyRating(String energyRating) { this.energyRating = energyRating; }
+    public void setDimension(String dimension) { this.dimension = dimension; }
 
     @Override
     public double calculateFinalPrice() { return getBasePrice() + DELIVERY_SURCHARGE; }
-
     @Override
     protected String getDefaultProvider() { return "Manufacturer"; }
-
     @Override
     protected int getDefaultDuration() { return 24; }
 }

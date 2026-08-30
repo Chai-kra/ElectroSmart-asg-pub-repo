@@ -5,7 +5,6 @@ public class StaffManager {
     private List<Staff> staffList = new ArrayList<>();
     private List<Transaction> transactions = new ArrayList<>();
 
-    /** Registers a new staff member. staffID must be unique. */
     public void registerStaff(Staff staff) throws DuplicateStaffException {
         if (findByID(staff.getStaffID()) != null) {
             throw new DuplicateStaffException("Staff ID " + staff.getStaffID() + " already exists.");
@@ -26,12 +25,14 @@ public class StaffManager {
         return staffList;
     }
 
-    /** Records a completed sale against the staff member who processed it. */
+    public void clearStaff() {
+        staffList.clear();
+    }
+
     public void recordSale(Transaction transaction) {
         transactions.add(transaction);
     }
 
-    /** Appliances sold by a given staff member, for the staff-lookup/report view. */
     public List<Transaction> getSalesByStaff(String staffID) {
         List<Transaction> result = new ArrayList<>();
         for (Transaction t : transactions) {
@@ -40,5 +41,13 @@ public class StaffManager {
             }
         }
         return result;
+    }
+
+    public List<Transaction> getAllTransactions() {
+        return transactions;
+    }
+
+    public void clearTransactions() {
+        transactions.clear();
     }
 }
