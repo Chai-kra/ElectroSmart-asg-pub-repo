@@ -30,18 +30,37 @@ public abstract class Appliance implements WarrantyEligible {
     public int getStockQuantity() { return stockQuantity; }
     public Warranty getWarranty() { return warranty; }
 
-    public void setModelName(String modelName) { this.modelName = modelName; }
-    public void setBrand(String brand) { this.brand = brand; }
-    public void setBasePrice(double basePrice) { this.basePrice = basePrice; }
-    public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
+    public void setModelName(String modelName) {
+        if (modelName == null || modelName.isBlank()) {
+            throw new IllegalArgumentException("Model name cannot be empty.");
+        }
+        this.modelName = modelName;
+    }
+
+    public void setBrand(String brand) {
+        if (brand == null || brand.isBlank()) {
+            throw new IllegalArgumentException("Brand cannot be empty.");
+        }
+        this.brand = brand;
+    }
+
+    public void setBasePrice(double basePrice) {
+        if (basePrice < 0) {
+            throw new IllegalArgumentException("Base price cannot be negative.");
+        }
+        this.basePrice = basePrice;
+    }
+
+    public void setStockQuantity(int stockQuantity) {
+        if (stockQuantity < 0) {
+            throw new IllegalArgumentException("Stock quantity cannot be negative.");
+        }
+        this.stockQuantity = stockQuantity;
+    }
 
     public void reduceStock(int qty) { this.stockQuantity -= qty; }
     public boolean isLowStock() { return this.stockQuantity < 3; }
     public boolean hasWarranty() { return this.warranty != null; }
-    
-    public Warranty getWarranty() {
-        return warranty;
-    }
 
     public abstract double calculateFinalPrice();
     protected abstract String getDefaultProvider();

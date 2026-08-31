@@ -12,8 +12,20 @@ public class WhiteGoods extends Appliance {
 
     public String getEnergyRating() { return energyRating; }
     public String getDimension() { return dimension; }
-    public void setEnergyRating(String energyRating) { this.energyRating = energyRating; }
-    public void setDimension(String dimension) { this.dimension = dimension; }
+
+    public void setEnergyRating(String energyRating) {
+        if (energyRating == null || energyRating.isBlank()) {
+            throw new IllegalArgumentException("Energy rating cannot be empty.");
+        }
+        this.energyRating = energyRating;
+    }
+
+    public void setDimension(String dimension) {
+        if (dimension == null || dimension.isBlank()) {
+            throw new IllegalArgumentException("Dimension cannot be empty.");
+        }
+        this.dimension = dimension;
+    }
 
     @Override
     public double calculateFinalPrice() { return getBasePrice() + DELIVERY_SURCHARGE; }

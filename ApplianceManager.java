@@ -9,34 +9,159 @@ public class ApplianceManager {
         System.out.println("Add Appliance - choose type:");
         System.out.println("1. WhiteGoods");
         System.out.println("2. DigitalGadgets");
-        System.out.print("Select an option: ");
-        String type = scanner.nextLine().trim();
-        System.out.print("Appliance ID: ");
-        String applianceID = scanner.nextLine().trim();
-        if (findApplianceByID(applianceID) != null) {
-            throw new DuplicateApplianceException("An appliance with ID " + applianceID + " already exists.");
+        String type;
+        while (true) {
+            System.out.print("Select an option: ");
+            type = scanner.nextLine().trim();
+            if (type.equals("1") || type.equals("2")) break;
+            System.out.println("Invalid option — please enter 1 or 2.");
         }
-        System.out.print("Model Name: ");
-        String modelName = scanner.nextLine().trim();
-        System.out.print("Brand: ");
-        String brand = scanner.nextLine().trim();
-        double basePrice = readDouble(scanner, "Base Price: ");
-        int stockQuantity = readInt(scanner, "Stock Quantity: ");
+
+        String applianceID;
+        while (true) {
+            System.out.print("Appliance ID: ");
+            applianceID = scanner.nextLine().trim();
+            if (applianceID.isEmpty()) {
+                System.out.println("Appliance ID cannot be empty.");
+            } else if (findApplianceByID(applianceID) != null) {
+                System.out.println("An appliance with ID " + applianceID + " already exists. Try a different ID.");
+            } else {
+                break;
+            }
+        }
+
+        String modelName;
+        while (true) {
+            System.out.print("Model Name: ");
+            modelName = scanner.nextLine().trim();
+            if (modelName.isEmpty()) System.out.println("Model name cannot be empty.");
+            else break;
+        }
+
+        String brand;
+        while (true) {
+            System.out.print("Brand: ");
+            brand = scanner.nextLine().trim();
+            if (brand.isEmpty()) System.out.println("Brand cannot be empty.");
+            else break;
+        }
+
+        double basePrice = readNonNegativeDouble(scanner, "Base Price: ");
+        int stockQuantity = readNonNegativeInt(scanner, "Stock Quantity: ");
+
         Appliance newAppliance;
         if (type.equals("1")) {
-            System.out.print("Energy Rating (1-5): ");
-            String energyRating = scanner.nextLine().trim();
-            System.out.print("Dimension: ");
-            String dimension = scanner.nextLine().trim();
+            String energyRating;
+            while (true) {
+                System.out.print("Energy Rating (e.g. 5-star): ");
+                energyRating = scanner.nextLine().trim();
+                if (energyRating.isEmpty()) System.out.println("Energy rating cannot be empty.");
+                else break;
+            }
+            String dimension;
+            while (true) {
+                System.out.print("Dimension (e.g. 180x60x65cm): ");
+                dimension = scanner.nextLine().trim();
+                if (dimension.isEmpty()) System.out.println("Dimension cannot be empty.");
+                else break;
+            }
             newAppliance = new WhiteGoods(applianceID, modelName, brand, basePrice, stockQuantity, energyRating, dimension);
         } else {
-            System.out.print("Operating System: ");
-            String operatingSystem = scanner.nextLine().trim();
-            double powerConsumption = readDouble(scanner, "Power Consumption: ");
+            String operatingSystem;
+            while (true) {
+                System.out.print("Operating System (or N/A): ");
+                operatingSystem = scanner.nextLine().trim();
+                if (operatingSystem.isEmpty()) System.out.println("Operating system cannot be empty — enter N/A if not applicable.");
+                else break;
+            }
+            double powerConsumption = readNonNegativeDouble(scanner, "Power Consumption (W): ");
             newAppliance = new DigitalGadgets(applianceID, modelName, brand, basePrice, stockQuantity, operatingSystem, powerConsumption);
         }
         inventory.add(newAppliance);
         System.out.println("Appliance added successfully!");
+    }
+
+    /**
+     * Lets an admin edit an existing appliance's details, including the
+     * type-specific fields (energy rating/dimension for WhiteGoods,
+     * operating system/power consumption for DigitalGadgets).
+     */
+    public void editAppliance(Scanner scanner) {
+        System.out.print("\nEnter Appliance ID to edit (0 to cancel): ");
+        String id = scanner.nextLine().trim();
+        if (id.equals("0")) return;
+        Appliance a = findApplianceByID(id);
+        if (a == null) {
+            System.out.println("No appliance found with ID \"" + id + "\".");
+            return;
+        }
+
+        System.out.println("Editing: " + a);
+        System.out.println("1. Model Name");
+        System.out.println("2. Brand");
+        System.out.println("3. Base Price");
+        System.out.println("4. Stock Quantity");
+        if (a instanceof WhiteGoods) {
+            System.out.println("5. Energy Rating");
+            System.out.println("6. Dimension");
+        } else if (a instanceof DigitalGadgets) {
+            System.out.println("5. Operating System");
+            System.out.println("6. Power Consumption");
+        }
+        System.out.println("0. Cancel");
+        System.out.print("Field to edit: ");
+        String field = scanner.nextLine().trim();
+
+        try {
+            switch (field) {
+                case "1":
+                    System.out.print("New Model Name: ");
+                    a.setModelName(scanner.nextLine().trim());
+                    break;
+                case "2":
+                    System.out.print("New Brand: ");
+                    a.setBrand(scanner.nextLine().trim());
+                    break;
+                case "3":
+                    a.setBasePrice(readNonNegativeDouble(scanner, "New Base Price: "));
+                    break;
+                case "4":
+                    a.setStockQuantity(readNonNegativeInt(scanner, "New Stock Quantity: "));
+                    break;
+                case "5":
+                    if (a instanceof WhiteGoods wg) {
+                        System.out.print("New Energy Rating: ");
+                        wg.setEnergyRating(scanner.nextLine().trim());
+                    } else if (a instanceof DigitalGadgets dg) {
+                        System.out.print("New Operating System: ");
+                        dg.setOperatingSystem(scanner.nextLine().trim());
+                    } else {
+                        System.out.println("Invalid option.");
+                        return;
+                    }
+                    break;
+                case "6":
+                    if (a instanceof WhiteGoods wg) {
+                        System.out.print("New Dimension: ");
+                        wg.setDimension(scanner.nextLine().trim());
+                    } else if (a instanceof DigitalGadgets dg) {
+                        dg.setPowerConsumption(readNonNegativeDouble(scanner, "New Power Consumption: "));
+                    } else {
+                        System.out.println("Invalid option.");
+                        return;
+                    }
+                    break;
+                case "0":
+                    System.out.println("Cancelled.");
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+                    return;
+            }
+            System.out.println("Appliance updated: " + a);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     public Appliance findApplianceByID(String applianceID) {
@@ -205,7 +330,7 @@ public class ApplianceManager {
         System.out.printf("Total charged: RM%.2f%n", finalTotal);
     }
 
-    public void extendApplianceWarranty(Scanner scanner, Staff currentStaff) 
+    public void extendApplianceWarranty(Scanner scanner, Staff currentStaff)
             throws InvalidWarrantyExtensionException {
         System.out.println("\n=== Appliances with Active Warranties ===");
         boolean anyActive = false;
@@ -287,6 +412,28 @@ public class ApplianceManager {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number — please enter a whole number only.");
             }
+        }
+    }
+
+    private double readNonNegativeDouble(Scanner scanner, String prompt) {
+        while (true) {
+            double value = readDouble(scanner, prompt);
+            if (value < 0) {
+                System.out.println("Value cannot be negative.");
+                continue;
+            }
+            return value;
+        }
+    }
+
+    private int readNonNegativeInt(Scanner scanner, String prompt) {
+        while (true) {
+            int value = readInt(scanner, prompt);
+            if (value < 0) {
+                System.out.println("Value cannot be negative.");
+                continue;
+            }
+            return value;
         }
     }
 

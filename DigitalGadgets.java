@@ -12,8 +12,20 @@ public class DigitalGadgets extends Appliance {
 
     public String getOperatingSystem() { return operatingSystem; }
     public double getPowerConsumption() { return powerConsumption; }
-    public void setOperatingSystem(String operatingSystem) { this.operatingSystem = operatingSystem; }
-    public void setPowerConsumption(double powerConsumption) { this.powerConsumption = powerConsumption; }
+
+    public void setOperatingSystem(String operatingSystem) {
+        if (operatingSystem == null || operatingSystem.isBlank()) {
+            throw new IllegalArgumentException("Operating system cannot be empty.");
+        }
+        this.operatingSystem = operatingSystem;
+    }
+
+    public void setPowerConsumption(double powerConsumption) {
+        if (powerConsumption < 0) {
+            throw new IllegalArgumentException("Power consumption cannot be negative.");
+        }
+        this.powerConsumption = powerConsumption;
+    }
 
     @Override
     public double calculateFinalPrice() { return getBasePrice() + (getBasePrice() * RECYCLING_LEVY_RATE); }
