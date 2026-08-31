@@ -19,10 +19,9 @@ public class AccountManager {
     }
 
     public Account login(String username, String password) {
-        for (Account acc : accounts) {
-            if (acc.getUsername().equalsIgnoreCase(username) && acc.getPassword().equals(password)) {
-                return acc;
-            }
+        Account account = findByUsername(username);
+        if (account != null && account.getPassword().equals(password)) {
+            return account;
         }
         return null;
     }

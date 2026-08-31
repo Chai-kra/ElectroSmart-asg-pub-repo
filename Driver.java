@@ -4,7 +4,6 @@ import java.util.Scanner;
 public class Driver {
     private static final String STAFF_KEY = "123aaa";
 
-    // Orange-to-Yellow gradient ANSI ASCII WordArt
     private static final String ORANGE_YELLOW_BANNER = 
         "\u001B[38;5;202m ___________.__                 __                 _________                      __   \n" +
         "\u001B[38;5;208m \\_   _____/|  |   ____   _____/  |________  ____ /   _____/ _____ _____ ________/  |_ \n" +
@@ -30,9 +29,9 @@ public class Driver {
         ApplianceManager applianceManager = new ApplianceManager();
         applianceManager.loadSampleData();
         StaffManager staffManager = new StaffManager();
-        
-        seedSampleAccounts(accountManager);
-        
+
+        seedSampleAccounts(accountManager, staffManager);
+
         Account currentAccount = null;
         boolean exitProgram = false;
 
@@ -68,33 +67,57 @@ public class Driver {
             switch (choice.toUpperCase()) {
                 case "1":
                     registerCustomer(scanner, customerManager);
+                    pause(scanner);
                     break;
                 case "2":
                     registerStaff(scanner, staffManager);
+                    pause(scanner);
                     break;
                 case "3":
                     try {
                         applianceManager.addAppliance(scanner);
-                        System.out.println("Appliance added successfully!");
                     } catch (DuplicateApplianceException e) {
                         System.out.println("Error: " + e.getMessage());
                     } catch (IllegalArgumentException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
+                    pause(scanner);
                     break;
-                case "4":
+                case "4": {
+                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
+                    if (staff == null) {
+                        System.out.println("No staff profile linked to this account yet.");
+                        System.out.println("Please register your staff profile first (option 2), using Staff ID: " + currentAccount.getStaffID());
+                        pause(scanner);
+                        break;
+                    }
                     try {
-                        applianceManager.processSale(scanner, customerManager, staffManager);
+                        applianceManager.processSale(scanner, customerManager, staffManager, staff);
                     } catch (InvalidWarrantyExtensionException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
                     pause(scanner);
                     break;
-                case "5":
-                    extendWarranty(scanner);
+                }
+                case "5": {
+                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
+                    if (staff == null) {
+                        System.out.println("No staff profile linked to this account yet.");
+                        System.out.println("Please register your staff profile first (option 2), using Staff ID: " + currentAccount.getStaffID());
+                        pause(scanner);
+                        break;
+                    }
+                    try {
+                        applianceManager.extendApplianceWarranty(scanner, staff);
+                    } catch (InvalidWarrantyExtensionException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    pause(scanner);
                     break;
+                }
                 case "6":
                     applianceManager.viewLowStock(scanner);
+                    pause(scanner);
                     break;
                 case "7":
                     searchWarrantyProfile(scanner, applianceManager, staffManager);
@@ -102,6 +125,7 @@ public class Driver {
                     break;
                 case "8":
                     generateSalesReport();
+                    pause(scanner);
                     break;
                 case "9":
                     if (currentAccount.getRole() == AccountRole.ADMIN) {
@@ -112,6 +136,7 @@ public class Driver {
                     break;
                 case "R":
                     viewStaffSalesReport(scanner, staffManager);
+                    pause(scanner);
                     break;
                 case "L":
                     System.out.println("Logged out.");
@@ -166,9 +191,11 @@ public class Driver {
                 String password = scanner.nextLine().trim();
                 System.out.print("Role (ADMIN/STAFF): ");
                 String roleInput = scanner.nextLine().trim().toUpperCase();
+                System.out.print("Your Staff ID (link to your Staff profile — register it later via option 2 with the SAME ID): ");
+                String staffID = scanner.nextLine().trim();
                 try {
                     AccountRole role = AccountRole.valueOf(roleInput);
-                    accountManager.registerAccount(username, password, role);
+                    accountManager.registerAccount(username, password, role, staffID);
                     System.out.println("Account registered successfully. Please sign in.");
                 } catch (IllegalArgumentException | DuplicateAccountException e) {
                     System.out.println("Could not register account: " + e.getMessage());
@@ -228,9 +255,10 @@ public class Driver {
         System.out.println("  Handled By: " + (w.getHandledBy() != null ? w.getHandledBy().getName() : "N/A"));
     }
 
-    private static void seedSampleAccounts(AccountManager accountManager) {
+    private static void seedSampleAccounts(AccountManager accountManager, StaffManager staffManager) {
         try {
-            accountManager.registerAccount("Admin", "123456", AccountRole.ADMIN);
+            staffManager.registerStaff(new Staff("ADM001", "Admin", "Administrator", "admin@electrosmart.com", 60000));
+            accountManager.registerAccount("Admin", "123456", AccountRole.ADMIN, "ADM001");
         } catch (Exception e) {
             throw new IllegalStateException("Failed to seed sample accounts: " + e.getMessage(), e);
         }
@@ -341,7 +369,7 @@ public class Driver {
             return;
         }
         System.out.println("Sales report for " + staff);
-        java.util.List<Transaction> sales = staffManager.getSalesByStaff(staffID);
+        List<Transaction> sales = staffManager.getSalesByStaff(staffID);
         if (sales.isEmpty()) {
             System.out.println("No sales recorded for this staff member yet.");
         } else {
@@ -349,14 +377,6 @@ public class Driver {
                 System.out.println("  " + t);
             }
         }
-    }
-
-    private static void extendWarranty(Scanner scanner) {
-        System.out.println("TODO: Extend warranty is not implemented yet.");
-    }
-
-    private static void searchWarranty(Scanner scanner) {
-        System.out.println("TODO: Search warranty profile is not implemented yet.");
     }
 
     private static void generateSalesReport() {
@@ -380,14 +400,14 @@ public class Driver {
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
             switch (choice) {
-                case "1":
-                case "2":
-                case "3":
+                case "1": 
+                case "2": 
+                case "3": 
                 case "4":
-                case "5":
-                case "6":
-                case "7":
-                case "8":
+                case "5": 
+                case "6": 
+                case "7": 
+                case "8": 
                 case "9":
                     System.out.println("TODO: Admin management option " + choice + " is not implemented yet.");
                     break;
