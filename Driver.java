@@ -38,7 +38,8 @@ public class Driver {
         while (!exitProgram) {
             clearScreen();
             if (currentAccount == null) {
-                currentAccount = runGate(scanner, accountManager);
+                // CHANGED: now passes staffManager so registration can create the linked Staff record
+                currentAccount = runGate(scanner, accountManager, staffManager);
                 if (currentAccount == null) {
                     exitProgram = true;
                 }
@@ -153,7 +154,8 @@ public class Driver {
         scanner.close();
     }
 
-    private static Account runGate(Scanner scanner, AccountManager accountManager) {
+    // CHANGED: added StaffManager parameter
+    private static Account runGate(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         while (true) {
             System.out.println("\n" + ORANGE_YELLOW_BANNER);
             System.out.println("==================================================================");
@@ -178,33 +180,114 @@ public class Driver {
                     return account;
                 }
             } else if (choice.equals("2")) {
-                System.out.print("Enter Staff Key to register: ");
-                String inputKey = scanner.nextLine().trim();
-                if (!STAFF_KEY.equals(inputKey)) {
-                    System.out.println("Access Denied: Invalid Staff Key.");
-                    continue;
-                }
-
-                System.out.print("Choose a username: ");
-                String username = scanner.nextLine().trim();
-                System.out.print("Choose a password: ");
-                String password = scanner.nextLine().trim();
-                System.out.print("Role (ADMIN/STAFF): ");
-                String roleInput = scanner.nextLine().trim().toUpperCase();
-                System.out.print("Your Staff ID (link to your Staff profile — register it later via option 2 with the SAME ID): ");
-                String staffID = scanner.nextLine().trim();
-                try {
-                    AccountRole role = AccountRole.valueOf(roleInput);
-                    accountManager.registerAccount(username, password, role, staffID);
-                    System.out.println("Account registered successfully. Please sign in.");
-                } catch (IllegalArgumentException | DuplicateAccountException e) {
-                    System.out.println("Could not register account: " + e.getMessage());
-                }
+                // CHANGED: was inline registration of Account only; now delegates to
+                // registerAccountAndStaff() which also creates the linked Staff record
+                registerAccountAndStaff(scanner, accountManager, staffManager);
             } else if (choice.equals("0")) {
                 return null;
             } else {
                 System.out.println("Invalid option, please try again.");
             }
+        }
+    }
+
+    /**
+     * CHANGED (new method): Registers a login Account AND its linked Staff profile
+     * together, in one flow. Previously these were two separate steps — register an
+     * account here, then separately register a Staff record from the main menu with
+     * a matching ID — which meant a brand-new account couldn't process sales or
+     * extend warranties until you went and did a second, unrelated-looking step.
+     * This replaces the old inline registration block that used to live in runGate().
+     */
+    private static void registerAccountAndStaff(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
+        System.out.print("Enter Staff Key to register: ");
+        String inputKey = scanner.nextLine().trim();
+        if (!STAFF_KEY.equals(inputKey)) {
+            System.out.println("Access Denied: Invalid Staff Key.");
+            return;
+        }
+
+        String username;
+        while (true) {
+            System.out.print("Choose a username: ");
+            username = scanner.nextLine().trim();
+            if (username.isEmpty()) {
+                System.out.println("Username cannot be empty.");
+            } else if (accountManager.findByUsername(username) != null) {
+                System.out.println("That username is already taken.");
+            } else {
+                break;
+            }
+        }
+
+        System.out.print("Choose a password: ");
+        String password = scanner.nextLine().trim();
+        if (password.isEmpty()) {
+            System.out.println("Password cannot be empty. Registration cancelled.");
+            return;
+        }
+
+        AccountRole role = null;
+        while (role == null) {
+            System.out.print("Role (ADMIN/STAFF): ");
+            try {
+                role = AccountRole.valueOf(scanner.nextLine().trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid role. Please enter ADMIN or STAFF.");
+            }
+        }
+
+        System.out.println("\nNow let's set up your Staff profile, so your account is ready to use right away.");
+        String staffID;
+        while (true) {
+            System.out.print("Choose a Staff ID (e.g. STF001): ");
+            staffID = scanner.nextLine().trim();
+            if (staffID.isEmpty()) {
+                System.out.println("Staff ID cannot be empty.");
+            } else if (staffManager.findByID(staffID) != null) {
+                System.out.println("This Staff ID is already in use. Choose another.");
+            } else {
+                break;
+            }
+        }
+
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine().trim();
+        System.out.print("Enter Job Title (e.g. Sales Associate, Manager): ");
+        String jobTitle = scanner.nextLine().trim();
+        String email;
+        while (true) {
+            System.out.print("Enter Email: ");
+            email = scanner.nextLine().trim();
+            if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+                System.out.println("Invalid email format.");
+            } else {
+                break;
+            }
+        }
+        double annualSalary;
+        while (true) {
+            System.out.print("Enter Annual Salary: ");
+            String salaryInput = scanner.nextLine().trim();
+            try {
+                annualSalary = Double.parseDouble(salaryInput);
+                if (annualSalary < 0) {
+                    System.out.println("Annual salary cannot be negative.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number — please enter digits only (e.g. 45000 or 45000.50).");
+            }
+        }
+
+        try {
+            Staff newStaff = new Staff(staffID, name, jobTitle, email, annualSalary);
+            staffManager.registerStaff(newStaff);
+            accountManager.registerAccount(username, password, role, staffID);
+            System.out.println("\nAccount and Staff profile registered successfully. Please sign in.");
+        } catch (DuplicateStaffException | DuplicateAccountException | IllegalArgumentException e) {
+            System.out.println("Could not complete registration: " + e.getMessage());
         }
     }
 
@@ -383,6 +466,7 @@ public class Driver {
         System.out.println("TODO: Generate sales report is not implemented yet.");
     }
 
+    // UNCHANGED: left exactly as original — still TODO stubs, not touched
     private static void manageData(Scanner scanner, CustomerManager customerManager, 
                                 StaffManager staffManager, ApplianceManager applianceManager, 
                                 AccountManager accountManager) {
