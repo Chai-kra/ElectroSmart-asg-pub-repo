@@ -10,7 +10,7 @@ public class Account {
     private AccountRole role;
     private String staffID;     // links this login to a Staff record
 
-    public Account(String username, String password, AccountRole role) {
+    public Account(String username, String password, AccountRole role, String staffID) {
         this.username = username;
         this.password = password;
         this.role = role;

@@ -92,7 +92,7 @@ public class ApplianceManager {
         }
     }
 
-    public void processSale(Scanner scanner, CustomerManager customerManager, StaffManager staffManager)
+    public void processSale(Scanner scanner, CustomerManager customerManager, StaffManager staffManager, Staff currentStaff)
             throws InvalidWarrantyExtensionException {
         System.out.println("\n=== Available Appliances ===");
         if (inventory.isEmpty()) {
@@ -205,7 +205,8 @@ public class ApplianceManager {
         System.out.printf("Total charged: RM%.2f%n", finalTotal);
     }
 
-    public void extendApplianceWarranty(Scanner scanner, StaffManager staffManager) throws InvalidWarrantyExtensionException {
+    public void extendApplianceWarranty(Scanner scanner, Staff currentStaff) 
+            throws InvalidWarrantyExtensionException {
         System.out.println("\n=== Appliances with Active Warranties ===");
         boolean anyActive = false;
         for (Appliance a : inventory) {
@@ -235,16 +236,8 @@ public class ApplianceManager {
             }
         }
 
-        Staff staff = null;
-        while (staff == null) {
-            System.out.print("Enter Staff ID handling extension (0 to cancel): ");
-            String staffID = scanner.nextLine().trim();
-            if (staffID.equals("0")) { System.out.println("Cancelled."); return; }
-            staff = staffManager.findByID(staffID);
-            if (staff == null) {
-                System.out.println("No staff found with ID \"" + staffID + "\". Please try again.");
-            }
-        }
+        // Uses the logged-in staff passed from Driver.java
+        Staff staff = currentStaff;
 
         int extraMonths = 0;
         while (true) {

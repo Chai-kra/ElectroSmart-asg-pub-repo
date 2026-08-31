@@ -33,4 +33,13 @@ public class AccountManager {
     public void clearAccounts() {
         accounts.clear();
     }
+
+    public Account findByUsername(String username) {
+        for (Account a : accounts) {
+            if (a.getUsername().equalsIgnoreCase(username)) {
+                return a;
+            }
+        }
+        return null;
+    }
 }

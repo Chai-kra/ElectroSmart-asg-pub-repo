@@ -129,7 +129,7 @@ public class Driver {
                     break;
                 case "9":
                     if (currentAccount.getRole() == AccountRole.ADMIN) {
-                        manageData(scanner, customerManager);
+                        manageData(scanner, customerManager, staffManager, applianceManager, accountManager);
                     } else {
                         System.out.println("Invalid option, please try again.");
                     }
@@ -383,7 +383,10 @@ public class Driver {
         System.out.println("TODO: Generate sales report is not implemented yet.");
     }
 
-    private static void manageData(Scanner scanner, CustomerManager customerManager) {
+    private static void manageData(Scanner scanner, CustomerManager customerManager, 
+                                StaffManager staffManager, ApplianceManager applianceManager, 
+                                AccountManager accountManager) {
+
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Manage Data (Admin) ---");
