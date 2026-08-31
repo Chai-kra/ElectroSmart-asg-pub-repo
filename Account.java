@@ -8,11 +8,13 @@ public class Account {
     private String username;
     private String password;
     private AccountRole role;
+    private String staffID;     // links this login to a Staff record
 
     public Account(String username, String password, AccountRole role) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.staffID = staffID;     //zq
     }
 
     public String getUsername() {
@@ -25,6 +27,10 @@ public class Account {
 
     public AccountRole getRole() {
         return role;
+    }
+
+    public String getStaffID() { 
+        return staffID; 
     }
 
     public void setPassword(String password) {
