@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Scanner;
 
 public class Driver {
@@ -96,7 +97,8 @@ public class Driver {
                     applianceManager.viewLowStock(scanner);
                     break;
                 case "7":
-                    searchWarranty(scanner);
+                    searchWarrantyProfile(scanner, applianceManager, staffManager);
+                    pause(scanner);
                     break;
                 case "8":
                     generateSalesReport();
@@ -177,6 +179,53 @@ public class Driver {
                 System.out.println("Invalid option, please try again.");
             }
         }
+    }
+
+    private static void searchWarrantyProfile(Scanner scanner, ApplianceManager applianceManager, StaffManager staffManager) {
+        System.out.println("\nSearch Warranty Profile:");
+        System.out.println("1. By Customer ID");
+        System.out.println("2. By Serial Number (Appliance ID)");
+        System.out.print("Choose search type: ");
+        String choice = scanner.nextLine();
+
+        if (choice.equals("1")) {
+            System.out.print("Enter Customer ID: ");
+            String customerID = scanner.nextLine();
+            List<Transaction> sales = staffManager.getSalesByCustomer(customerID);
+            if (sales.isEmpty()) {
+                System.out.println("No purchase/warranty records found for Customer ID \"" + customerID + "\".");
+                return;
+            }
+            System.out.println("\n=== Warranty Records for Customer " + customerID + " ===");
+            for (Transaction t : sales) {
+                printWarrantyDetails(applianceManager, t.getApplianceID());
+            }
+        } else if (choice.equals("2")) {
+            System.out.print("Enter Serial Number (Appliance ID): ");
+            String serial = scanner.nextLine();
+            printWarrantyDetails(applianceManager, serial);
+        } else {
+            System.out.println("Invalid choice.");
+        }
+    }
+
+    private static void printWarrantyDetails(ApplianceManager applianceManager, String applianceID) {
+        Appliance appliance = applianceManager.findApplianceByID(applianceID);
+        if (appliance == null) {
+            System.out.println("No appliance found with Serial Number \"" + applianceID + "\".");
+            return;
+        }
+        if (!appliance.hasWarranty()) {
+            System.out.println(appliance.getModelName() + " (" + applianceID + ") - No active warranty.");
+            return;
+        }
+        Warranty w = appliance.getWarranty();
+        System.out.println("\n" + appliance.getModelName() + " (" + applianceID + ")");
+        System.out.println("  Warranty ID: " + w.getWarrantyID());
+        System.out.println("  Provider: " + w.getProvider());
+        System.out.println("  Duration: " + w.getDurationMonths() + " months");
+        System.out.println("  Extended: " + (w.isExtended() ? "Yes" : "No"));
+        System.out.println("  Handled By: " + (w.getHandledBy() != null ? w.getHandledBy().getName() : "N/A"));
     }
 
     private static void seedSampleAccounts(AccountManager accountManager) {

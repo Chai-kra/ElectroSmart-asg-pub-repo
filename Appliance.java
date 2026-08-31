@@ -38,6 +38,10 @@ public abstract class Appliance implements WarrantyEligible {
     public void reduceStock(int qty) { this.stockQuantity -= qty; }
     public boolean isLowStock() { return this.stockQuantity < 3; }
     public boolean hasWarranty() { return this.warranty != null; }
+    
+    public Warranty getWarranty() {
+        return warranty;
+    }
 
     public abstract double calculateFinalPrice();
     protected abstract String getDefaultProvider();

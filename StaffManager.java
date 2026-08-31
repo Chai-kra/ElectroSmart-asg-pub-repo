@@ -43,6 +43,16 @@ public class StaffManager {
         return result;
     }
 
+    public List<Transaction> getSalesByCustomer(String customerID) {
+        List<Transaction> result = new ArrayList<>();
+        for (Transaction t : transactions) {
+            if (t.getCustomerID().equalsIgnoreCase(customerID)) {
+                result.add(t);
+            }
+        }
+        return result;
+    }
+
     public List<Transaction> getAllTransactions() {
         return transactions;
     }
