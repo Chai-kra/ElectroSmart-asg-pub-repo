@@ -4,13 +4,18 @@ import java.util.List;
 public class AccountManager {
     private List<Account> accounts = new ArrayList<>();
 
-    public void registerAccount(String username, String password, AccountRole role) throws DuplicateAccountException {
-        for (Account acc : accounts) {
-            if (acc.getUsername().equalsIgnoreCase(username)) {
-                throw new DuplicateAccountException("Account with username '" + username + "' already exists.");
-            }
+    public void registerAccount(String username, String password, AccountRole role, String staffID)
+            throws DuplicateAccountException {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty.");
         }
-        accounts.add(new Account(username, password, role));
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty.");
+        }
+        if (findByUsername(username) != null) {
+            throw new DuplicateAccountException("Username " + username + " is already taken.");
+        }
+        accounts.add(new Account(username, password, role, staffID));
     }
 
     public Account login(String username, String password) {
