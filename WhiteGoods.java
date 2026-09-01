@@ -1,106 +1,38 @@
-public abstract class Appliance implements WarrantyEligible {
-    private String applianceID;
-    private String modelName;
-    private String brand;
-    private double basePrice;
-    private int stockQuantity;
-    private Warranty warranty;
+public class WhiteGoods extends Appliance {
+    private String energyRating;
+    private String dimension;
+    private static final double DELIVERY_SURCHARGE = 50.0;
 
-    public Appliance(String applianceID, String modelName, String brand, double basePrice, int stockQuantity) {
-        if (applianceID == null || applianceID.isBlank()) {
-            throw new IllegalArgumentException("Appliance ID cannot be empty.");
-        }
-        if (basePrice < 0) {
-            throw new IllegalArgumentException("Base price cannot be negative.");
-        }
-        if (stockQuantity < 0) {
-            throw new IllegalArgumentException("Stock quantity cannot be negative.");
-        }
-        this.applianceID = applianceID;
-        this.modelName = modelName;
-        this.brand = brand;
-        this.basePrice = basePrice;
-        this.stockQuantity = stockQuantity;
+    public WhiteGoods(String applianceID, String modelName, String brand, double basePrice, int stockQuantity,
+                       String energyRating, String dimension) {
+        super(applianceID, modelName, brand, basePrice, stockQuantity);
+        this.energyRating = energyRating;
+        this.dimension = dimension;
     }
 
-    public String getApplianceID() { return applianceID; }
-    public String getModelName() { return modelName; }
-    public String getBrand() { return brand; }
-    public double getBasePrice() { return basePrice; }
-    public int getStockQuantity() { return stockQuantity; }
-    public Warranty getWarranty() { return warranty; }
+    public String getEnergyRating() { return energyRating; }
+    public String getDimension() { return dimension; }
 
-    public void setModelName(String modelName) {
-        if (modelName == null || modelName.isBlank()) {
-            throw new IllegalArgumentException("Model name cannot be empty.");
+    public void setEnergyRating(String energyRating) {
+        if (energyRating == null || energyRating.isBlank()) {
+            throw new IllegalArgumentException("Energy rating cannot be empty.");
         }
-        this.modelName = modelName;
+        this.energyRating = energyRating;
     }
 
-    public void setBrand(String brand) {
-        if (brand == null || brand.isBlank()) {
-            throw new IllegalArgumentException("Brand cannot be empty.");
+    public void setDimension(String dimension) {
+        if (dimension == null || dimension.isBlank()) {
+            throw new IllegalArgumentException("Dimension cannot be empty.");
         }
-        this.brand = brand;
-    }
-
-    public void setBasePrice(double basePrice) {
-        if (basePrice < 0) {
-            throw new IllegalArgumentException("Base price cannot be negative.");
-        }
-        this.basePrice = basePrice;
-    }
-
-    public void setStockQuantity(int stockQuantity) {
-        if (stockQuantity < 0) {
-            throw new IllegalArgumentException("Stock quantity cannot be negative.");
-        }
-        this.stockQuantity = stockQuantity;
-    }
-
-    public void reduceStock(int qty) { this.stockQuantity -= qty; }
-    public boolean isLowStock() { return this.stockQuantity < 3; }
-    public boolean hasWarranty() { return this.warranty != null; }
-
-    /**
-     * NEW: The extra amount calculateFinalPrice() adds on top of the base price —
-     * RM50 flat for WhiteGoods, 2% of base price for DigitalGadgets. Computed
-     * generically here (finalPrice - basePrice) by calling the polymorphic
-     * calculateFinalPrice(), so it automatically stays correct for either subclass
-     * without needing to know which one it is.
-     */
-    public double getSurchargeAmount() {
-        return calculateFinalPrice() - getBasePrice();
-    }
-
-    public abstract double calculateFinalPrice();
-    protected abstract String getDefaultProvider();
-    protected abstract int getDefaultDuration();
-
-    /** NEW: what to call the surcharge in receipts/summaries — e.g. "Delivery Surcharge" vs "Recycling Levy". */
-    public abstract String getSurchargeLabel();
-
-    @Override
-    public void activateWarranty(Staff staff) {
-        this.warranty = new Warranty(
-            "W-" + this.applianceID,
-            this.applianceID,
-            getDefaultProvider(),
-            getDefaultDuration()
-        );
-        warranty.activate(staff);
+        this.dimension = dimension;
     }
 
     @Override
-    public void extendWarranty(int extraMonths, Staff staff) throws InvalidWarrantyExtensionException {
-        if (this.warranty == null) {
-            throw new InvalidWarrantyExtensionException("No warranty has been activated for this appliance yet.");
-        }
-        this.warranty.extendWarranty(extraMonths, staff);
-    }
-
+    public double calculateFinalPrice() { return getBasePrice() + DELIVERY_SURCHARGE; }
     @Override
-    public String toString() {
-        return modelName + " (" + brand + ") - RM" + String.format("%.2f", calculateFinalPrice()) + " | Stock " + stockQuantity;
-    }
+    protected String getDefaultProvider() { return "Manufacturer"; }
+    @Override
+    protected int getDefaultDuration() { return 24; }
+    @Override
+    public String getSurchargeLabel() { return "Delivery Surcharge"; }
 }
