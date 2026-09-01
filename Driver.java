@@ -38,7 +38,7 @@ public class Driver {
         while (!exitProgram) {
             clearScreen();
             if (currentAccount == null) {
-                // CHANGED: now passes staffManager so registration can create the linked Staff record
+                // now passes staffManager so registration can create the linked Staff record
                 currentAccount = runGate(scanner, accountManager, staffManager);
                 if (currentAccount == null) {
                     exitProgram = true;
@@ -125,7 +125,7 @@ public class Driver {
                     pause(scanner);
                     break;
                 case "8":
-                    generateSalesReport();
+                    staffManager.printSalesReport();
                     pause(scanner);
                     break;
                 case "9":
@@ -154,7 +154,7 @@ public class Driver {
         scanner.close();
     }
 
-    // CHANGED: added StaffManager parameter
+    // added StaffManager parameter
     private static Account runGate(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         while (true) {
             System.out.println("\n" + ORANGE_YELLOW_BANNER);
@@ -192,7 +192,7 @@ public class Driver {
     }
 
     /**
-     * CHANGED (new method): Registers a login Account AND its linked Staff profile
+     * Registers a login Account AND its linked Staff profile
      * together, in one flow. Previously these were two separate steps — register an
      * account here, then separately register a Staff record from the main menu with
      * a matching ID — which meant a brand-new account couldn't process sales or
@@ -462,11 +462,6 @@ public class Driver {
         }
     }
 
-    private static void generateSalesReport() {
-        System.out.println("TODO: Generate sales report is not implemented yet.");
-    }
-
-    // UNCHANGED: left exactly as original — still TODO stubs, not touched
     private static void manageData(Scanner scanner, CustomerManager customerManager, 
                                 StaffManager staffManager, ApplianceManager applianceManager, 
                                 AccountManager accountManager) {
