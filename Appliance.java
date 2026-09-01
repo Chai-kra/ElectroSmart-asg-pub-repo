@@ -62,9 +62,23 @@ public abstract class Appliance implements WarrantyEligible {
     public boolean isLowStock() { return this.stockQuantity < 3; }
     public boolean hasWarranty() { return this.warranty != null; }
 
+    /**
+     * NEW: The extra amount calculateFinalPrice() adds on top of the base price —
+     * RM50 flat for WhiteGoods, 2% of base price for DigitalGadgets. Computed
+     * generically here (finalPrice - basePrice) by calling the polymorphic
+     * calculateFinalPrice(), so it automatically stays correct for either subclass
+     * without needing to know which one it is.
+     */
+    public double getSurchargeAmount() {
+        return calculateFinalPrice() - getBasePrice();
+    }
+
     public abstract double calculateFinalPrice();
     protected abstract String getDefaultProvider();
     protected abstract int getDefaultDuration();
+
+    /** NEW: what to call the surcharge in receipts/summaries — e.g. "Delivery Surcharge" vs "Recycling Levy". */
+    public abstract String getSurchargeLabel();
 
     @Override
     public void activateWarranty(Staff staff) {

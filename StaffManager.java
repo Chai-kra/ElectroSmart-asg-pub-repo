@@ -6,6 +6,20 @@ import java.util.Map;
 public class StaffManager {
     private List<Staff> staffList = new ArrayList<>();
     private List<Transaction> transactions = new ArrayList<>();
+    private int nextStaffNumber = 1;
+
+    /**
+     * NEW: Auto-generates the next free Staff ID (STF001, STF002, ...) instead
+     * of asking the user to type one. Skips over any ID already in use (e.g.
+     * the seeded "ADM001" account) so it never collides.
+     */
+    public String generateNextStaffID() {
+        String id;
+        do {
+            id = String.format("STF%03d", nextStaffNumber++);
+        } while (findByID(id) != null);
+        return id;
+    }
 
     public void registerStaff(Staff staff) throws DuplicateStaffException {
         if (findByID(staff.getStaffID()) != null) {
@@ -64,11 +78,11 @@ public class StaffManager {
     }
 
     /**
-     * NEW: Prints an overall sales report — total revenue/units, a breakdown
+     * Prints an overall sales report — total revenue/units, a breakdown
      * per staff member, a breakdown per appliance, and the best-selling item.
-     * Lives here (not in Driver/ApplianceManager) because the transaction
-     * records this reports on are already owned and encapsulated by this
-     * class — keeping the report logic next to the data it reads from.
+     * the transaction records this reports on are already owned and 
+     * encapsulated by this class
+     * keeping the report logic next to the data it reads from.
      */
     public void printSalesReport() {
         if (transactions.isEmpty()) {

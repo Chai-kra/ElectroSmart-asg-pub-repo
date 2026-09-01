@@ -4,6 +4,20 @@ import java.util.Scanner;
 
 public class ApplianceManager {
     private List<Appliance> inventory = new ArrayList<>();
+    private int nextApplianceNumber = 1;
+
+    /**
+     * NEW: Auto-generates the next free Appliance ID (A001, A002, ...) instead of
+     * asking the admin to type one. Skips over any ID already in use (e.g. the
+     * A001-A006 sample data) so it never collides.
+     */
+    private String generateNextApplianceID() {
+        String id;
+        do {
+            id = String.format("A%03d", nextApplianceNumber++);
+        } while (findApplianceByID(id) != null);
+        return id;
+    }
 
     public void addAppliance(Scanner scanner) throws DuplicateApplianceException {
         System.out.println("Add Appliance - choose type:");
@@ -17,18 +31,7 @@ public class ApplianceManager {
             System.out.println("Invalid option — please enter 1 or 2.");
         }
 
-        String applianceID;
-        while (true) {
-            System.out.print("Appliance ID: ");
-            applianceID = scanner.nextLine().trim();
-            if (applianceID.isEmpty()) {
-                System.out.println("Appliance ID cannot be empty.");
-            } else if (findApplianceByID(applianceID) != null) {
-                System.out.println("An appliance with ID " + applianceID + " already exists. Try a different ID.");
-            } else {
-                break;
-            }
-        }
+        String applianceID = generateNextApplianceID();
 
         String modelName;
         while (true) {
@@ -78,7 +81,10 @@ public class ApplianceManager {
             newAppliance = new DigitalGadgets(applianceID, modelName, brand, basePrice, stockQuantity, operatingSystem, powerConsumption);
         }
         inventory.add(newAppliance);
-        System.out.println("Appliance added successfully!");
+        System.out.println("Appliance added successfully! Assigned ID: " + applianceID);
+        System.out.printf("Base Price RM%.2f + %s RM%.2f = Final Price RM%.2f%n",
+                newAppliance.getBasePrice(), newAppliance.getSurchargeLabel(),
+                newAppliance.getSurchargeAmount(), newAppliance.calculateFinalPrice());
     }
 
     /**
@@ -288,7 +294,10 @@ public class ApplianceManager {
             cartQuantities.add(quantity);
             double lineTotal = appliance.calculateFinalPrice() * quantity;
             runningTotal += lineTotal;
-            System.out.printf("Added: %d x %s (RM%.2f)%n", quantity, appliance.getModelName(), lineTotal);
+            System.out.printf("Added: %d x %s (Base RM%.2f + %s RM%.2f = RM%.2f each, RM%.2f total)%n",
+                    quantity, appliance.getModelName(), appliance.getBasePrice(),
+                    appliance.getSurchargeLabel(), appliance.getSurchargeAmount(),
+                    appliance.calculateFinalPrice(), lineTotal);
             System.out.print("Add another item? (Y/N): ");
             if (!scanner.nextLine().trim().equalsIgnoreCase("Y")) addingItems = false;
         }
@@ -304,7 +313,12 @@ public class ApplianceManager {
         for (int i = 0; i < cartAppliances.size(); i++) {
             Appliance a = cartAppliances.get(i);
             int qty = cartQuantities.get(i);
-            System.out.printf("%d x %-20s RM%.2f%n", qty, a.getModelName(), a.calculateFinalPrice() * qty);
+            // CHANGED: now shows the base price + surcharge/levy breakdown per unit,
+            // instead of just the already-marked-up line total, so it's clear the
+            // WhiteGoods delivery surcharge / DigitalGadgets recycling levy is applied.
+            System.out.printf("%d x %-20s Base RM%.2f + %s RM%.2f = RM%.2f each -> RM%.2f%n",
+                    qty, a.getModelName(), a.getBasePrice(), a.getSurchargeLabel(),
+                    a.getSurchargeAmount(), a.calculateFinalPrice(), a.calculateFinalPrice() * qty);
         }
         System.out.printf("Subtotal: RM%.2f%n", runningTotal);
         System.out.printf("Membership Discount (%s): -%.0f%%%n", customer.getMemberShipStatus(), discount * 100);
@@ -389,6 +403,7 @@ public class ApplianceManager {
         inventory.add(new DigitalGadgets("A004", "Smart TV Y2", "Sony", 2000.00, 2, "Android TV", 150.0));
         inventory.add(new DigitalGadgets("A005", "Soundbar S1", "JBL", 450.00, 8, "N/A", 60.0));
         inventory.add(new DigitalGadgets("A006", "Smart TV Q9", "Samsung", 3200.00, 1, "Tizen OS", 180.0));
+        nextApplianceNumber = 7;
     }
 
     private double readDouble(Scanner scanner, String prompt) {

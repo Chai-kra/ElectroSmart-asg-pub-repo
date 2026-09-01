@@ -18,8 +18,12 @@ public class Driver {
     }
 
     private static void pause(Scanner scanner) {
-        System.out.println("\nPress Enter to return to the menu...");
-        scanner.nextLine();
+        System.out.print("\nPress Enter to return to the menu ~");
+        String input = scanner.nextLine().trim();
+        if (input.equalsIgnoreCase("exit")) {
+            System.out.println("Goodbye!");
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args) {
@@ -38,7 +42,7 @@ public class Driver {
         while (!exitProgram) {
             clearScreen();
             if (currentAccount == null) {
-                // now passes staffManager so registration can create the linked Staff record
+                // CHANGED: now passes staffManager so registration can create the linked Staff record
                 currentAccount = runGate(scanner, accountManager, staffManager);
                 if (currentAccount == null) {
                     exitProgram = true;
@@ -154,7 +158,7 @@ public class Driver {
         scanner.close();
     }
 
-    // added StaffManager parameter
+    // CHANGED: added StaffManager parameter
     private static Account runGate(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         while (true) {
             System.out.println("\n" + ORANGE_YELLOW_BANNER);
@@ -192,7 +196,7 @@ public class Driver {
     }
 
     /**
-     * Registers a login Account AND its linked Staff profile
+     * CHANGED (new method): Registers a login Account AND its linked Staff profile
      * together, in one flow. Previously these were two separate steps — register an
      * account here, then separately register a Staff record from the main menu with
      * a matching ID — which meant a brand-new account couldn't process sales or
@@ -238,18 +242,9 @@ public class Driver {
         }
 
         System.out.println("\nNow let's set up your Staff profile, so your account is ready to use right away.");
-        String staffID;
-        while (true) {
-            System.out.print("Choose a Staff ID (e.g. STF001): ");
-            staffID = scanner.nextLine().trim();
-            if (staffID.isEmpty()) {
-                System.out.println("Staff ID cannot be empty.");
-            } else if (staffManager.findByID(staffID) != null) {
-                System.out.println("This Staff ID is already in use. Choose another.");
-            } else {
-                break;
-            }
-        }
+        // CHANGED: Staff ID is now auto-generated instead of typed in
+        String staffID = staffManager.generateNextStaffID();
+        System.out.println("Assigned Staff ID: " + staffID);
 
         System.out.print("Enter Name: ");
         String name = scanner.nextLine().trim();
@@ -349,18 +344,9 @@ public class Driver {
 
     private static void registerCustomer(Scanner scanner, CustomerManager customerManager) {
         System.out.println("\n--- Register New Customer ---");
-        String customerID;
-        while (true) {
-            System.out.print("Enter Customer ID (e.g. CUS001): ");
-            customerID = scanner.nextLine().trim();
-            if (customerID.isEmpty()) {
-                System.out.println("Customer ID cannot be empty.");
-            } else if (customerManager.findByID(customerID) != null) {
-                System.out.println("This Customer ID already exists.");
-            } else {
-                break;
-            }
-        }
+        // CHANGED: Customer ID is now auto-generated instead of typed in
+        String customerID = customerManager.generateNextCustomerID();
+        System.out.println("Assigned Customer ID: " + customerID);
         System.out.print("Enter Name: ");
         String name = scanner.nextLine().trim();
         String email;
@@ -393,18 +379,9 @@ public class Driver {
 
     private static void registerStaff(Scanner scanner, StaffManager staffManager) {
         System.out.println("\n--- Register New Staff ---");
-        String staffID;
-        while (true) {
-            System.out.print("Enter Staff ID (e.g. STF001): ");
-            staffID = scanner.nextLine().trim();
-            if (staffID.isEmpty()) {
-                System.out.println("Staff ID cannot be empty.");
-            } else if (staffManager.findByID(staffID) != null) {
-                System.out.println("This Staff ID already exists.");
-            } else {
-                break;
-            }
-        }
+        // CHANGED: Staff ID is now auto-generated instead of typed in
+        String staffID = staffManager.generateNextStaffID();
+        System.out.println("Assigned Staff ID: " + staffID);
         System.out.print("Enter Name: ");
         String name = scanner.nextLine().trim();
         System.out.print("Enter Role (e.g. Sales Associate, Manager): ");
@@ -462,6 +439,7 @@ public class Driver {
         }
     }
 
+    // UNCHANGED: left exactly as original — still TODO stubs, not touched
     private static void manageData(Scanner scanner, CustomerManager customerManager, 
                                 StaffManager staffManager, ApplianceManager applianceManager, 
                                 AccountManager accountManager) {

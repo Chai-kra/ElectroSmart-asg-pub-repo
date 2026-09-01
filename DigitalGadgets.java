@@ -33,4 +33,6 @@ public class DigitalGadgets extends Appliance {
     protected String getDefaultProvider() { return "Store"; }
     @Override
     protected int getDefaultDuration() { return 12; }
+    @Override
+    public String getSurchargeLabel() { return "Recycling Levy"; }
 }
