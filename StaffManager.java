@@ -2,17 +2,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 public class StaffManager {
     private List<Staff> staffList = new ArrayList<>();
     private List<Transaction> transactions = new ArrayList<>();
     private int nextStaffNumber = 1;
-
-    /**
-     * NEW: Auto-generates the next free Staff ID (STF001, STF002, ...) instead
-     * of asking the user to type one. Skips over any ID already in use (e.g.
-     * the seeded "ADM001" account) so it never collides.
-     */
     public String generateNextStaffID() {
         String id;
         do {
@@ -20,14 +13,12 @@ public class StaffManager {
         } while (findByID(id) != null);
         return id;
     }
-
     public void registerStaff(Staff staff) throws DuplicateStaffException {
         if (findByID(staff.getStaffID()) != null) {
             throw new DuplicateStaffException("Staff ID " + staff.getStaffID() + " already exists.");
         }
         staffList.add(staff);
     }
-
     public Staff findByID(String staffID) {
         for (Staff s : staffList) {
             if (s.getStaffID().equalsIgnoreCase(staffID)) {
@@ -36,19 +27,32 @@ public class StaffManager {
         }
         return null;
     }
-
     public List<Staff> getAllStaff() {
         return staffList;
     }
-
     public void clearStaff() {
         staffList.clear();
     }
-
+    /**
+     * Removes a single staff member by ID. Refuses to remove anyone who has
+     * recorded sales, since deleting them would orphan that transaction
+     * history (the sales would still reference a Staff object that is no
+     * longer in staffList). Use clearStaff() if a full wipe is really wanted.
+     */
+    public void removeStaff(String staffID) {
+        Staff staff = findByID(staffID);
+        if (staff == null) {
+            throw new IllegalArgumentException("No staff found with ID " + staffID);
+        }
+        if (!getSalesByStaff(staffID).isEmpty()) {
+            throw new IllegalStateException(
+                    "Cannot remove staff " + staffID + " — they have recorded sales.");
+        }
+        staffList.remove(staff);
+    }
     public void recordSale(Transaction transaction) {
         transactions.add(transaction);
     }
-
     public List<Transaction> getSalesByStaff(String staffID) {
         List<Transaction> result = new ArrayList<>();
         for (Transaction t : transactions) {
@@ -58,7 +62,6 @@ public class StaffManager {
         }
         return result;
     }
-
     public List<Transaction> getSalesByCustomer(String customerID) {
         List<Transaction> result = new ArrayList<>();
         for (Transaction t : transactions) {
@@ -68,13 +71,30 @@ public class StaffManager {
         }
         return result;
     }
-
     public List<Transaction> getAllTransactions() {
         return transactions;
     }
-
     public void clearTransactions() {
         transactions.clear();
+    }
+    /**
+     * Returns the staff member with the highest total sales revenue so far,
+     * or null if no sales have been recorded yet.
+     */
+    public Staff getTopPerformer() {
+        Map<String, Double> revenueByStaffID = new LinkedHashMap<>();
+        for (Transaction t : transactions) {
+            revenueByStaffID.merge(t.getSoldBy().getStaffID(), t.getFinalPrice(), Double::sum);
+        }
+        String topStaffID = null;
+        double topRevenue = -1;
+        for (Map.Entry<String, Double> entry : revenueByStaffID.entrySet()) {
+            if (entry.getValue() > topRevenue) {
+                topRevenue = entry.getValue();
+                topStaffID = entry.getKey();
+            }
+        }
+        return topStaffID == null ? null : findByID(topStaffID);
     }
 
     /**
@@ -84,49 +104,42 @@ public class StaffManager {
      * encapsulated by this class
      * keeping the report logic next to the data it reads from.
      */
+    
     public void printSalesReport() {
         if (transactions.isEmpty()) {
             System.out.println("No sales transactions recorded yet.");
             return;
         }
-
         double totalRevenue = 0;
         int totalUnits = 0;
         Map<String, Double> revenueByStaff = new LinkedHashMap<>();
         Map<String, Integer> unitsByStaff = new LinkedHashMap<>();
         Map<String, Double> revenueByAppliance = new LinkedHashMap<>();
         Map<String, Integer> unitsByAppliance = new LinkedHashMap<>();
-
         for (Transaction t : transactions) {
             totalRevenue += t.getFinalPrice();
             totalUnits += t.getQuantity();
-
             String staffName = t.getSoldBy().getName();
             revenueByStaff.merge(staffName, t.getFinalPrice(), Double::sum);
             unitsByStaff.merge(staffName, t.getQuantity(), Integer::sum);
-
             String applianceID = t.getApplianceID();
             revenueByAppliance.merge(applianceID, t.getFinalPrice(), Double::sum);
             unitsByAppliance.merge(applianceID, t.getQuantity(), Integer::sum);
         }
-
         System.out.println("\n=== Sales Report ===");
         System.out.println("Total Transactions: " + transactions.size());
         System.out.println("Total Units Sold: " + totalUnits);
         System.out.printf("Total Revenue: RM%.2f%n", totalRevenue);
-
         System.out.println("\n--- Revenue by Staff ---");
         for (String staffName : revenueByStaff.keySet()) {
             System.out.printf("%-20s %d units | RM%.2f%n",
                     staffName, unitsByStaff.get(staffName), revenueByStaff.get(staffName));
         }
-
         System.out.println("\n--- Revenue by Appliance (Serial No.) ---");
         for (String applianceID : revenueByAppliance.keySet()) {
             System.out.printf("%-10s %d units | RM%.2f%n",
                     applianceID, unitsByAppliance.get(applianceID), revenueByAppliance.get(applianceID));
         }
-
         String topAppliance = null;
         int topUnits = -1;
         for (Map.Entry<String, Integer> entry : unitsByAppliance.entrySet()) {
@@ -137,6 +150,10 @@ public class StaffManager {
         }
         if (topAppliance != null) {
             System.out.println("\nBest-selling appliance: " + topAppliance + " (" + topUnits + " units sold)");
+        }
+        Staff topPerformer = getTopPerformer();
+        if (topPerformer != null) {
+            System.out.println("Top-performing staff member: " + topPerformer.getName());
         }
     }
 }

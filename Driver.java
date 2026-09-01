@@ -3,16 +3,15 @@ import java.util.Scanner;
 
 public class Driver {
     private static final String STAFF_KEY = "123aaa";
-
-    private static final String ORANGE_YELLOW_BANNER = 
+    private static final String ORANGE_YELLOW_BANNER =
         "\u001B[38;5;202m ___________.__                 __                 _________                      __   \n" +
         "\u001B[38;5;208m \\_   _____/|  |   ____   _____/  |________  ____ /   _____/ _____ _____ ________/  |_ \n" +
         "\u001B[38;5;214m  |    __)_ |  | _/ __ \\_/ ___\\   __\\_  __ \\/  _ \\\\_____  \\ /     \\\\__  \\\\_  __ \\   __\\\n" +
         "\u001B[38;5;220m  |        \\|  |_\\  ___/\\  \\___|  |  |  | \\(  <_> )        \\  Y Y  \\/ __ \\|  | \\/|  |  \n" +
         "\u001B[38;5;226m /_______  /|____/\\___  >\\___  >__|  |__|   \\____/_______  /__|_|  (____  /__|   |__|  \n" +
         "\u001B[38;5;228m         \\/           \\/     \\/                          \\/      \\/     \\/          \u001B[0m";
-
-    private static void clearScreen() {
+    
+        private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
@@ -35,14 +34,14 @@ public class Driver {
         StaffManager staffManager = new StaffManager();
 
         seedSampleAccounts(accountManager, staffManager);
-
+        
         Account currentAccount = null;
         boolean exitProgram = false;
 
         while (!exitProgram) {
             clearScreen();
             if (currentAccount == null) {
-                // CHANGED: now passes staffManager so registration can create the linked Staff record
+
                 currentAccount = runGate(scanner, accountManager, staffManager);
                 if (currentAccount == null) {
                     exitProgram = true;
@@ -68,7 +67,7 @@ public class Driver {
             System.out.println("0. Exit");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
-
+            
             switch (choice.toUpperCase()) {
                 case "1":
                     registerCustomer(scanner, customerManager);
@@ -157,8 +156,6 @@ public class Driver {
         System.out.println("Goodbye!");
         scanner.close();
     }
-
-    // CHANGED: added StaffManager parameter
     private static Account runGate(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         while (true) {
             System.out.println("\n" + ORANGE_YELLOW_BANNER);
@@ -170,7 +167,6 @@ public class Driver {
             System.out.println("0. Exit");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
-
             if (choice.equals("1")) {
                 System.out.print("Username: ");
                 String username = scanner.nextLine().trim();
@@ -184,8 +180,6 @@ public class Driver {
                     return account;
                 }
             } else if (choice.equals("2")) {
-                // CHANGED: was inline registration of Account only; now delegates to
-                // registerAccountAndStaff() which also creates the linked Staff record
                 registerAccountAndStaff(scanner, accountManager, staffManager);
             } else if (choice.equals("0")) {
                 return null;
@@ -194,15 +188,6 @@ public class Driver {
             }
         }
     }
-
-    /**
-     * CHANGED (new method): Registers a login Account AND its linked Staff profile
-     * together, in one flow. Previously these were two separate steps — register an
-     * account here, then separately register a Staff record from the main menu with
-     * a matching ID — which meant a brand-new account couldn't process sales or
-     * extend warranties until you went and did a second, unrelated-looking step.
-     * This replaces the old inline registration block that used to live in runGate().
-     */
     private static void registerAccountAndStaff(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         System.out.print("Enter Staff Key to register: ");
         String inputKey = scanner.nextLine().trim();
@@ -210,7 +195,6 @@ public class Driver {
             System.out.println("Access Denied: Invalid Staff Key.");
             return;
         }
-
         String username;
         while (true) {
             System.out.print("Choose a username: ");
@@ -223,14 +207,12 @@ public class Driver {
                 break;
             }
         }
-
         System.out.print("Choose a password: ");
         String password = scanner.nextLine().trim();
         if (password.isEmpty()) {
             System.out.println("Password cannot be empty. Registration cancelled.");
             return;
         }
-
         AccountRole role = null;
         while (role == null) {
             System.out.print("Role (ADMIN/STAFF): ");
@@ -240,12 +222,9 @@ public class Driver {
                 System.out.println("Invalid role. Please enter ADMIN or STAFF.");
             }
         }
-
         System.out.println("\nNow let's set up your Staff profile, so your account is ready to use right away.");
-        // CHANGED: Staff ID is now auto-generated instead of typed in
         String staffID = staffManager.generateNextStaffID();
         System.out.println("Assigned Staff ID: " + staffID);
-
         System.out.print("Enter Name: ");
         String name = scanner.nextLine().trim();
         System.out.print("Enter Job Title (e.g. Sales Associate, Manager): ");
@@ -275,7 +254,6 @@ public class Driver {
                 System.out.println("Invalid number — please enter digits only (e.g. 45000 or 45000.50).");
             }
         }
-
         try {
             Staff newStaff = new Staff(staffID, name, jobTitle, email, annualSalary);
             staffManager.registerStaff(newStaff);
@@ -285,14 +263,12 @@ public class Driver {
             System.out.println("Could not complete registration: " + e.getMessage());
         }
     }
-
     private static void searchWarrantyProfile(Scanner scanner, ApplianceManager applianceManager, StaffManager staffManager) {
         System.out.println("\nSearch Warranty Profile:");
         System.out.println("1. By Customer ID");
         System.out.println("2. By Serial Number (Appliance ID)");
         System.out.print("Choose search type: ");
         String choice = scanner.nextLine();
-
         if (choice.equals("1")) {
             System.out.print("Enter Customer ID: ");
             String customerID = scanner.nextLine();
@@ -313,7 +289,6 @@ public class Driver {
             System.out.println("Invalid choice.");
         }
     }
-
     private static void printWarrantyDetails(ApplianceManager applianceManager, String applianceID) {
         Appliance appliance = applianceManager.findApplianceByID(applianceID);
         if (appliance == null) {
@@ -332,7 +307,6 @@ public class Driver {
         System.out.println("  Extended: " + (w.isExtended() ? "Yes" : "No"));
         System.out.println("  Handled By: " + (w.getHandledBy() != null ? w.getHandledBy().getName() : "N/A"));
     }
-
     private static void seedSampleAccounts(AccountManager accountManager, StaffManager staffManager) {
         try {
             staffManager.registerStaff(new Staff("ADM001", "Admin", "Administrator", "admin@electrosmart.com", 60000));
@@ -341,10 +315,8 @@ public class Driver {
             throw new IllegalStateException("Failed to seed sample accounts: " + e.getMessage(), e);
         }
     }
-
     private static void registerCustomer(Scanner scanner, CustomerManager customerManager) {
         System.out.println("\n--- Register New Customer ---");
-        // CHANGED: Customer ID is now auto-generated instead of typed in
         String customerID = customerManager.generateNextCustomerID();
         System.out.println("Assigned Customer ID: " + customerID);
         System.out.print("Enter Name: ");
@@ -376,10 +348,8 @@ public class Driver {
             System.out.println("Could not register customer: " + e.getMessage());
         }
     }
-
     private static void registerStaff(Scanner scanner, StaffManager staffManager) {
         System.out.println("\n--- Register New Staff ---");
-        // CHANGED: Staff ID is now auto-generated instead of typed in
         String staffID = staffManager.generateNextStaffID();
         System.out.println("Assigned Staff ID: " + staffID);
         System.out.print("Enter Name: ");
@@ -419,7 +389,6 @@ public class Driver {
             System.out.println("Could not register staff: " + e.getMessage());
         }
     }
-
     private static void viewStaffSalesReport(Scanner scanner, StaffManager staffManager) {
         System.out.print("\nEnter Staff ID to view their sales report: ");
         String staffID = scanner.nextLine().trim();
@@ -438,10 +407,63 @@ public class Driver {
             }
         }
     }
-
-    // UNCHANGED: left exactly as original — still TODO stubs, not touched
-    private static void manageData(Scanner scanner, CustomerManager customerManager, 
-                                StaffManager staffManager, ApplianceManager applianceManager, 
+    /**
+     * Looks up a staff member by ID, lets the admin edit one field at a time
+     */
+    private static void editStaffMember(Scanner scanner, StaffManager staffManager) {
+        System.out.print("\nEnter Staff ID to edit (0 to cancel): ");
+        String id = scanner.nextLine().trim();
+        if (id.equals("0")) return;
+        Staff staff = staffManager.findByID(id);
+        if (staff == null) {
+            System.out.println("No staff found with ID \"" + id + "\".");
+            return;
+        }
+        System.out.println("Editing: " + staff);
+        System.out.println("1. Name");
+        System.out.println("2. Role");
+        System.out.println("3. Email");
+        System.out.println("4. Annual Salary");
+        System.out.println("5. Remove this staff member");
+        System.out.println("0. Cancel");
+        System.out.print("Field to edit: ");
+        String field = scanner.nextLine().trim();
+        try {
+            switch (field) {
+                case "1":
+                    System.out.print("New Name: ");
+                    staff.setName(scanner.nextLine().trim());
+                    break;
+                case "2":
+                    System.out.print("New Role: ");
+                    staff.setRole(scanner.nextLine().trim());
+                    break;
+                case "3":
+                    System.out.print("New Email: ");
+                    staff.setEmail(scanner.nextLine().trim());
+                    break;
+                case "4":
+                    System.out.print("New Annual Salary: ");
+                    staff.setAnnualSalary(Double.parseDouble(scanner.nextLine().trim()));
+                    break;
+                case "5":
+                    staffManager.removeStaff(staff.getStaffID());
+                    System.out.println("Staff member " + id + " removed.");
+                    return;
+                case "0":
+                    System.out.println("Cancelled.");
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+                    return;
+            }
+            System.out.println("Staff member updated: " + staff);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    private static void manageData(Scanner scanner, CustomerManager customerManager,
+                                StaffManager staffManager, ApplianceManager applianceManager,
                                 AccountManager accountManager) {
 
         boolean back = false;
@@ -455,21 +477,23 @@ public class Driver {
             System.out.println("6. Clear all staff");
             System.out.println("7. Clear all appliances (inventory)");
             System.out.println("8. Clear all transactions");
-            System.out.println("9. Clear all login accounts");
             System.out.println("0. Back");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
             switch (choice) {
-                case "1": 
-                case "2": 
-                case "3": 
+                case "1":
+                case "2":
+                            case "3":
+                editStaffMember(scanner, staffManager);
+                break;
                 case "4":
-                case "5": 
-                case "6": 
-                case "7": 
-                case "8": 
-                case "9":
-                    System.out.println("TODO: Admin management option " + choice + " is not implemented yet.");
+                case "5":
+                case "7":
+                case "8":
+
+                case "6":
+                    staffManager.clearStaff();
+                    System.out.println("All staff records cleared.");
                     break;
                 case "0":
                     back = true;
