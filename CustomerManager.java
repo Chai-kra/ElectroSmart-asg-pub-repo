@@ -17,7 +17,7 @@ public class CustomerManager {
         } while (findByID(id) != null);
         return id;
     }
-
+    
     public void addCustomer(Customer c) throws DuplicateCustomerException {
         for (Customer existing : customers) {
             if (existing.getCustomerID().equalsIgnoreCase(c.getCustomerID())) {
@@ -39,8 +39,17 @@ public class CustomerManager {
     public List<Customer> getAllCustomers() {
         return customers;
     }
-
-    public void clearCustomers() {
-        customers.clear();
+    /**
+     * Dummy data stuff
+     */
+    public void loadSampleData() {
+        try {
+            addCustomer(new Customer("CUS001", "Aisha Rahman", "aisha.rahman@example.com", MembershipStatus.GOLD));
+            addCustomer(new Customer("CUS002", "Marcus Tan", "marcus.tan@example.com", MembershipStatus.SILVER));
+            addCustomer(new Customer("CUS003", "Priya Nair", "priya.nair@example.com", MembershipStatus.REGULAR));
+            nextCustomerNumber = 4;
+        } catch (DuplicateCustomerException | IllegalArgumentException e) {
+            // Sample data is known-valid; this should never happen; But hey just in case amirite
+        }
     }
 }

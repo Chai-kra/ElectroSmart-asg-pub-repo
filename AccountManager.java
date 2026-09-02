@@ -1,9 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
-
 public class AccountManager {
     private List<Account> accounts = new ArrayList<>();
-
     public void registerAccount(String username, String password, AccountRole role, String staffID)
             throws DuplicateAccountException {
         if (username == null || username.trim().isEmpty()) {
@@ -17,7 +15,6 @@ public class AccountManager {
         }
         accounts.add(new Account(username, password, role, staffID));
     }
-
     public Account login(String username, String password) {
         Account account = findByUsername(username);
         if (account != null && account.getPassword().equals(password)) {
@@ -25,15 +22,9 @@ public class AccountManager {
         }
         return null;
     }
-
     public List<Account> getAllAccounts() {
         return accounts;
     }
-
-    public void clearAccounts() {
-        accounts.clear();
-    }
-
     public Account findByUsername(String username) {
         for (Account a : accounts) {
             if (a.getUsername().equalsIgnoreCase(username)) {

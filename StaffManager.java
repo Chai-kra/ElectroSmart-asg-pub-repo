@@ -30,15 +30,19 @@ public class StaffManager {
     public List<Staff> getAllStaff() {
         return staffList;
     }
-    public void clearStaff() {
-        staffList.clear();
-    }
     /**
-     * Removes a single staff member by ID. Refuses to remove anyone who has
-     * recorded sales, since deleting them would orphan that transaction
-     * history (the sales would still reference a Staff object that is no
-     * longer in staffList). Use clearStaff() if a full wipe is really wanted.
+     * Loads a small set of sample staff members so the system's features
+     * (sales, reports, etc.) can be demonstrated immediately.
      */
+    public void loadSampleData() {
+        try {
+            registerStaff(new Staff("STF001", "Wei Ling", "Sales Associate", "wei.ling@electrosmart.com", 42000));
+            registerStaff(new Staff("STF002", "Daniel Cruz", "Sales Associate", "daniel.cruz@electrosmart.com", 45000));
+            nextStaffNumber = 3;
+        } catch (DuplicateStaffException | IllegalArgumentException e) {
+            // Sample data is known-valid; this should never happen.
+        }
+    }
     public void removeStaff(String staffID) {
         Staff staff = findByID(staffID);
         if (staff == null) {
@@ -74,13 +78,6 @@ public class StaffManager {
     public List<Transaction> getAllTransactions() {
         return transactions;
     }
-    public void clearTransactions() {
-        transactions.clear();
-    }
-    /**
-     * Returns the staff member with the highest total sales revenue so far,
-     * or null if no sales have been recorded yet.
-     */
     public Staff getTopPerformer() {
         Map<String, Double> revenueByStaffID = new LinkedHashMap<>();
         for (Transaction t : transactions) {
@@ -96,15 +93,6 @@ public class StaffManager {
         }
         return topStaffID == null ? null : findByID(topStaffID);
     }
-
-    /**
-     * Prints an overall sales report — total revenue/units, a breakdown
-     * per staff member, a breakdown per appliance, and the best-selling item.
-     * the transaction records this reports on are already owned and 
-     * encapsulated by this class
-     * keeping the report logic next to the data it reads from.
-     */
-    
     public void printSalesReport() {
         if (transactions.isEmpty()) {
             System.out.println("No sales transactions recorded yet.");

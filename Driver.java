@@ -10,7 +10,7 @@ public class Driver {
         "\u001B[38;5;220m  |        \\|  |_\\  ___/\\  \\___|  |  |  | \\(  <_> )        \\  Y Y  \\/ __ \\|  | \\/|  |  \n" +
         "\u001B[38;5;226m /_______  /|____/\\___  >\\___  >__|  |__|   \\____/_______  /__|_|  (____  /__|   |__|  \n" +
         "\u001B[38;5;228m         \\/           \\/     \\/                          \\/      \\/     \\/          \u001B[0m";
-    
+
         private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
@@ -34,10 +34,12 @@ public class Driver {
         StaffManager staffManager = new StaffManager();
 
         seedSampleAccounts(accountManager, staffManager);
-        
+        customerManager.loadSampleData();
+        staffManager.loadSampleData();
+        seedSampleTransactions(applianceManager, customerManager, staffManager);
         Account currentAccount = null;
         boolean exitProgram = false;
-
+        
         while (!exitProgram) {
             clearScreen();
             if (currentAccount == null) {
@@ -51,97 +53,53 @@ public class Driver {
 
             System.out.println("\n=== ElectroSmart Appliance Management System ===");
             System.out.println("Signed in as: " + currentAccount);
-            System.out.println("1. Register customer");
-            System.out.println("2. Register staff");
-            System.out.println("3. Add appliance to inventory");
-            System.out.println("4. Process an appliance sale");
-            System.out.println("5. Extend appliance warranty");
-            System.out.println("6. View low-stock warnings");
-            System.out.println("7. Search warranty profile (by Customer ID or Serial Number)");
-            System.out.println("8. Generate sales report");
+            System.out.println("1. Register");
+            System.out.println("2. Appliance");
+            System.out.println("3. Inventory");
+            System.out.println("4. Generate sales report");
+            System.out.println("5. View a staff member's sales report");
+            System.out.println("6. View all available data");
             if (currentAccount.getRole() == AccountRole.ADMIN) {
-                System.out.println("9. Manage data (view / edit / clear) [ADMIN]");
+                System.out.println("7. Manage data [ADMIN]");
             }
-            System.out.println("R. View a staff member's sales report");
+
             System.out.println("L. Log out");
             System.out.println("0. Exit");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
-            
+
             switch (choice.toUpperCase()) {
                 case "1":
-                    registerCustomer(scanner, customerManager);
-                    pause(scanner);
+                    registerMenu(scanner, customerManager, staffManager);
                     break;
                 case "2":
-                    registerStaff(scanner, staffManager);
-                    pause(scanner);
+                    applianceMenu(scanner, applianceManager, customerManager, staffManager, currentAccount);
                     break;
                 case "3":
-                    try {
-                        applianceManager.addAppliance(scanner);
-                    } catch (DuplicateApplianceException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    pause(scanner);
+                    inventoryMenu(scanner, applianceManager);
                     break;
-                case "4": {
-                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
-                    if (staff == null) {
-                        System.out.println("No staff profile linked to this account yet.");
-                        System.out.println("Please register your staff profile first (option 2), using Staff ID: " + currentAccount.getStaffID());
-                        pause(scanner);
-                        break;
-                    }
-                    try {
-                        applianceManager.processSale(scanner, customerManager, staffManager, staff);
-                    } catch (InvalidWarrantyExtensionException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    pause(scanner);
-                    break;
-                }
-                case "5": {
-                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
-                    if (staff == null) {
-                        System.out.println("No staff profile linked to this account yet.");
-                        System.out.println("Please register your staff profile first (option 2), using Staff ID: " + currentAccount.getStaffID());
-                        pause(scanner);
-                        break;
-                    }
-                    try {
-                        applianceManager.extendApplianceWarranty(scanner, staff);
-                    } catch (InvalidWarrantyExtensionException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    pause(scanner);
-                    break;
-                }
-                case "6":
-                    applianceManager.viewLowStock(scanner);
-                    pause(scanner);
-                    break;
-                case "7":
-                    searchWarrantyProfile(scanner, applianceManager, staffManager);
-                    pause(scanner);
-                    break;
-                case "8":
+                case "4":
                     staffManager.printSalesReport();
                     pause(scanner);
                     break;
-                case "9":
+                case "5":
+                    viewStaffSalesReport(scanner, staffManager);
+                    pause(scanner);
+                    break;
+
+                case "6":
+                    viewAllAvailableData(staffManager, applianceManager);
+                    pause(scanner);
+                    break;
+                case "7":
+
                     if (currentAccount.getRole() == AccountRole.ADMIN) {
-                        manageData(scanner, customerManager, staffManager, applianceManager, accountManager);
+                        manageData(scanner, customerManager, staffManager, applianceManager);
                     } else {
                         System.out.println("Invalid option, please try again.");
                     }
                     break;
-                case "R":
-                    viewStaffSalesReport(scanner, staffManager);
-                    pause(scanner);
-                    break;
+
                 case "L":
                     System.out.println("Logged out.");
                     currentAccount = null;
@@ -187,6 +145,161 @@ public class Driver {
                 System.out.println("Invalid option, please try again.");
             }
         }
+    }
+    private static void registerMenu(Scanner scanner, CustomerManager customerManager, StaffManager staffManager) {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- Register ---");
+            System.out.println("1. Register customer");
+            System.out.println("2. Register staff");
+            System.out.println("0. Back");
+            System.out.print("Select an option: ");
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    registerCustomer(scanner, customerManager);
+                    pause(scanner);
+                    break;
+                case "2":
+                    registerStaff(scanner, staffManager);
+                    pause(scanner);
+                    break;
+                case "0":
+                    back = true;
+                    break;
+                default:
+                    System.out.println("Invalid option, please try again.");
+            }
+        }
+    }
+    private static void applianceMenu(Scanner scanner, ApplianceManager applianceManager, CustomerManager customerManager,
+                                       StaffManager staffManager, Account currentAccount) {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- Appliance ---");
+            System.out.println("1. Add appliance");
+            System.out.println("2. Process appliance sale");
+            System.out.println("3. Warranty detail (by Customer ID or Appliance ID)");
+            System.out.println("4. Extend warranty");
+            System.out.println("0. Back");
+            System.out.print("Select an option: ");
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    try {
+                        applianceManager.addAppliance(scanner);
+                    } catch (DuplicateApplianceException | IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    pause(scanner);
+                    break;
+                case "2": {
+                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
+                    if (staff == null) {
+                        System.out.println("No staff profile linked to this account yet.");
+                        System.out.println("Please register your staff profile first (Register > Register staff), using Staff ID: " + currentAccount.getStaffID());
+                        pause(scanner);
+                        break;
+                    }
+                    try {
+                        applianceManager.processSale(scanner, customerManager, staffManager, staff);
+                    } catch (InvalidWarrantyExtensionException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    pause(scanner);
+                    break;
+                }
+                case "3":
+                    searchWarrantyProfile(scanner, applianceManager, staffManager);
+                    pause(scanner);
+                    break;
+                case "4": {
+                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
+                    if (staff == null) {
+                        System.out.println("No staff profile linked to this account yet.");
+                        System.out.println("Please register your staff profile first (Register > Register staff), using Staff ID: " + currentAccount.getStaffID());
+                        pause(scanner);
+                        break;
+                    }
+                    try {
+                        applianceManager.extendApplianceWarranty(scanner, staff);
+                    } catch (InvalidWarrantyExtensionException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    pause(scanner);
+                    break;
+                }
+                case "0":
+                    back = true;
+                    break;
+                default:
+                    System.out.println("Invalid option, please try again.");
+            }
+        }
+    }
+    private static void inventoryMenu(Scanner scanner, ApplianceManager applianceManager) {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- Inventory ---");
+            System.out.println("1. View low stock warnings");
+            System.out.println("2. View inventory");
+            System.out.println("0. Back");
+            System.out.print("Select an option: ");
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    applianceManager.viewLowStock(scanner);
+                    break;
+                case "2":
+                    applianceManager.displayInventory();
+                    pause(scanner);
+                    break;
+                case "0":
+                    back = true;
+                    break;
+                default:
+                    System.out.println("Invalid option, please try again.");
+            }
+        }
+    }
+    private static void viewAllAvailableData(StaffManager staffManager, ApplianceManager applianceManager) {
+        System.out.println("\n=== All Staff Members ===");
+        List<Staff> staffList = staffManager.getAllStaff();
+        if (staffList.isEmpty()) {
+            System.out.println("No staff members registered yet.");
+        } else {
+            for (Staff s : staffList) {
+                System.out.println("  " + s);
+            }
+        }
+        System.out.println("\n=== All Appliances ===");
+        if (applianceManager.getAllAppliances().isEmpty()) {
+            System.out.println("No appliances in inventory yet.");
+        } else {
+            applianceManager.displayInventory();
+        }
+    }
+    private static void seedSampleTransactions(ApplianceManager applianceManager, CustomerManager customerManager,
+                                                StaffManager staffManager) {
+        recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS001", "STF001", 1);
+        recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS002", "STF002", 2);
+        recordSampleSale(applianceManager, customerManager, staffManager, "A003", "CUS003", "STF001", 1);
+        recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS002", "STF002", 1);
+        recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS001", "STF001", 1);
+    }
+    private static void recordSampleSale(ApplianceManager applianceManager, CustomerManager customerManager,
+                                          StaffManager staffManager, String applianceID, String customerID,
+                                          String staffID, int quantity) {
+        Appliance appliance = applianceManager.findApplianceByID(applianceID);
+        Customer customer = customerManager.findByID(customerID);
+        Staff staff = staffManager.findByID(staffID);
+        if (appliance == null || customer == null || staff == null) {
+            return;
+        }
+        double finalPrice = appliance.calculateFinalPrice() * quantity * (1 - customer.getDiscountRate());
+        appliance.reduceStock(quantity);
+        appliance.activateWarranty(staff);
+        staffManager.recordSale(new Transaction(appliance.getApplianceID(), customer.getCustomerID(), quantity, finalPrice, staff));
     }
     private static void registerAccountAndStaff(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         System.out.print("Enter Staff Key to register: ");
@@ -407,9 +520,7 @@ public class Driver {
             }
         }
     }
-    /**
-     * Looks up a staff member by ID, lets the admin edit one field at a time
-     */
+    
     private static void editStaffMember(Scanner scanner, StaffManager staffManager) {
         System.out.print("\nEnter Staff ID to edit (0 to cancel): ");
         String id = scanner.nextLine().trim();
@@ -462,38 +573,77 @@ public class Driver {
             System.out.println("Error: " + e.getMessage());
         }
     }
+    private static void editCustomer(Scanner scanner, CustomerManager customerManager) {
+        System.out.print("\nEnter Customer ID to edit (0 to cancel): ");
+        String id = scanner.nextLine().trim();
+        if (id.equals("0")) return;
+        Customer customer = customerManager.findByID(id);
+        if (customer == null) {
+            System.out.println("No customer found with ID \"" + id + "\".");
+            return;
+        }
+        System.out.println("Editing: " + customer);
+        System.out.println("1. Name");
+        System.out.println("2. Email");
+        System.out.println("3. Membership Status");
+        System.out.println("0. Cancel");
+        System.out.print("Field to edit: ");
+        String field = scanner.nextLine().trim();
+        try {
+            switch (field) {
+                case "1":
+                    System.out.print("New Name: ");
+                    customer.setName(scanner.nextLine().trim());
+                    break;
+                case "2":
+                    System.out.print("New Email: ");
+                    customer.setEmail(scanner.nextLine().trim());
+                    break;
+                case "3": {
+                    MembershipStatus status = null;
+                    while (status == null) {
+                        System.out.print("New Membership Status (REGULAR/SILVER/GOLD): ");
+                        try {
+                            status = MembershipStatus.valueOf(scanner.nextLine().trim().toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Invalid status. Try REGULAR, SILVER, or GOLD.");
+                        }
+                    }
+                    customer.setMembershipStatus(status);
+                    break;
+                }
+                case "0":
+                    System.out.println("Cancelled.");
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+                    return;
+            }
+            System.out.println("Customer updated: " + customer);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
     private static void manageData(Scanner scanner, CustomerManager customerManager,
-                                StaffManager staffManager, ApplianceManager applianceManager,
-                                AccountManager accountManager) {
-
+                                StaffManager staffManager, ApplianceManager applianceManager) {
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Manage Data (Admin) ---");
-            System.out.println("1. View all data");
-            System.out.println("2. Edit a customer");
-            System.out.println("3. Edit a staff member");
-            System.out.println("4. Edit an appliance");
-            System.out.println("5. Clear all customers");
-            System.out.println("6. Clear all staff");
-            System.out.println("7. Clear all appliances (inventory)");
-            System.out.println("8. Clear all transactions");
+            System.out.println("1. Edit a customer");
+            System.out.println("2. Edit a staff member");
+            System.out.println("3. Edit an appliance");
             System.out.println("0. Back");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
+                    editCustomer(scanner, customerManager);
+                    break;
                 case "2":
-                            case "3":
-                editStaffMember(scanner, staffManager);
-                break;
-                case "4":
-                case "5":
-                case "7":
-                case "8":
-
-                case "6":
-                    staffManager.clearStaff();
-                    System.out.println("All staff records cleared.");
+                    editStaffMember(scanner, staffManager);
+                    break;
+                case "3":
+                    applianceManager.editAppliance(scanner);
                     break;
                 case "0":
                     back = true;
