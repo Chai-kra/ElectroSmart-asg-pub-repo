@@ -40,6 +40,37 @@ public class Driver {
         }
     }
 
+    /** reads and re-prompts until a valid email address (name@domain.tld) is entered. */
+    private static String readValidEmail(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (!input.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+                System.out.println("Invalid email format — expected something like name@example.com.");
+            } else {
+                return input;
+            }
+        }
+    }
+
+    /** reads and re-prompts until a non-negative number is entered (e.g. salary). */
+    private static double readNonNegativeDouble(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            try {
+                double value = Double.parseDouble(input);
+                if (value < 0) {
+                    System.out.println("Value cannot be negative.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number — please enter digits only (e.g. 45000 or 45000.50).");
+            }
+        }
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
@@ -396,35 +427,10 @@ public class Driver {
         System.out.println("\nNow let's set up your Staff profile, so your account is ready to use right away.");
         String staffID = staffManager.generateNextStaffID();
         System.out.println("Assigned Staff ID: " + staffID);
-        System.out.print("Enter Name: ");
-        String name = scanner.nextLine().trim();
-        System.out.print("Enter Job Title (e.g. Sales Associate, Manager): ");
-        String jobTitle = scanner.nextLine().trim();
-        String email;
-        while (true) {
-            System.out.print("Enter Email: ");
-            email = scanner.nextLine().trim();
-            if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
-                System.out.println("Invalid email format.");
-            } else {
-                break;
-            }
-        }
-        double annualSalary;
-        while (true) {
-            System.out.print("Enter Annual Salary: ");
-            String salaryInput = scanner.nextLine().trim();
-            try {
-                annualSalary = Double.parseDouble(salaryInput);
-                if (annualSalary < 0) {
-                    System.out.println("Annual salary cannot be negative.");
-                    continue;
-                }
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number — please enter digits only (e.g. 45000 or 45000.50).");
-            }
-        }
+        String name = readAlphabetOnly(scanner, "Enter Name: ");
+        String jobTitle = readAlphabetOnly(scanner, "Enter Job Title (e.g. Sales Associate, Manager): ");
+        String email = readValidEmail(scanner, "Enter Email: ");
+        double annualSalary = readNonNegativeDouble(scanner, "Enter Annual Salary: ");
         try {
             Staff newStaff = new Staff(staffID, name, jobTitle, email, annualSalary);
             staffManager.registerStaff(newStaff);
@@ -502,16 +508,7 @@ public class Driver {
         String customerID = customerManager.generateNextCustomerID();
         System.out.println("Assigned Customer ID: " + customerID);
         String name = readAlphabetOnly(scanner, "Enter Name: ");
-        String email;
-        while (true) {
-            System.out.print("Enter Email: ");
-            email = scanner.nextLine().trim();
-            if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
-                System.out.println("Invalid email format.");
-            } else {
-                break;
-            }
-        }
+        String email = readValidEmail(scanner, "Enter Email: ");
         MembershipStatus status = null;
         while (status == null) {
             System.out.print("Membership Status (REGULAR/SILVER/GOLD): ");
@@ -526,10 +523,15 @@ public class Driver {
             if (type.equals("1")) {
                 String icNumber;
                 while (true) {
-                    System.out.print("Enter IC Number: ");
+                    System.out.print("Enter IC Number (e.g. 990101-14-5566): ");
                     icNumber = scanner.nextLine().trim();
-                    if (icNumber.isEmpty()) System.out.println("IC number cannot be empty.");
-                    else break;
+                    if (icNumber.isEmpty()) {
+                        System.out.println("IC number cannot be empty.");
+                    } else if (!icNumber.matches("\\d{6}-?\\d{2}-?\\d{4}")) {
+                        System.out.println("IC number must be 12 digits, e.g. 990101-14-5566.");
+                    } else {
+                        break;
+                    }
                 }
                 newCustomer = new IndividualCustomer(customerID, name, email, status, icNumber);
             } else {
@@ -547,10 +549,8 @@ public class Driver {
         System.out.println("\n--- Register New Staff ---");
         String staffID = staffManager.generateNextStaffID();
         System.out.println("Assigned Staff ID: " + staffID);
-        System.out.print("Enter Name: ");
-        String name = scanner.nextLine().trim();
-        System.out.print("Enter Role (e.g. Sales Associate, Manager): ");
-        String role = scanner.nextLine().trim();
+        String name = readAlphabetOnly(scanner, "Enter Name: ");
+        String role = readAlphabetOnly(scanner, "Enter Role (e.g. Sales Associate, Manager): ");
         String email;
         while (true) {
             System.out.print("Enter Email: ");
@@ -624,20 +624,16 @@ public class Driver {
         try {
             switch (field) {
                 case "1":
-                    System.out.print("New Name: ");
-                    staff.setName(scanner.nextLine().trim());
+                    staff.setName(readAlphabetOnly(scanner, "New Name: "));
                     break;
                 case "2":
-                    System.out.print("New Role: ");
-                    staff.setRole(scanner.nextLine().trim());
+                    staff.setRole(readAlphabetOnly(scanner, "New Role: "));
                     break;
                 case "3":
-                    System.out.print("New Email: ");
-                    staff.setEmail(scanner.nextLine().trim());
+                    staff.setEmail(readValidEmail(scanner, "New Email: "));
                     break;
                 case "4":
-                    System.out.print("New Annual Salary: ");
-                    staff.setAnnualSalary(Double.parseDouble(scanner.nextLine().trim()));
+                    staff.setAnnualSalary(readNonNegativeDouble(scanner, "New Annual Salary: "));
                     break;
                 case "5":
                     staffManager.removeStaff(staff.getStaffID());
@@ -674,12 +670,10 @@ public class Driver {
         try {
             switch (field) {
                 case "1":
-                    System.out.print("New Name: ");
-                    customer.setName(scanner.nextLine().trim());
+                    customer.setName(readAlphabetOnly(scanner, "New Name: "));
                     break;
                 case "2":
-                    System.out.print("New Email: ");
-                    customer.setEmail(scanner.nextLine().trim());
+                    customer.setEmail(readValidEmail(scanner, "New Email: "));
                     break;
                 case "3": {
                     MembershipStatus status = null;

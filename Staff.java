@@ -24,6 +24,11 @@ public class Staff {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
+        // model-level guard, mirroring Customer's setName() — the object
+        // enforces this itself instead of trusting the caller to have checked.
+        if (!name.trim().matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Name can only contain alphabet letters.");
+        }
         this.name = name;
     }
     public String getRole() {
@@ -32,6 +37,9 @@ public class Staff {
     public void setRole(String role) {
         if (role == null || role.trim().isEmpty()) {
             throw new IllegalArgumentException("Role cannot be empty.");
+        }
+        if (!role.trim().matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Role can only contain alphabet letters (e.g. Sales Associate).");
         }
         this.role = role;
     }

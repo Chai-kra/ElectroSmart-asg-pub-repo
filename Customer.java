@@ -38,6 +38,11 @@ public abstract class Customer {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
+        // enforced here too (not just in Driver's menus) so the object
+        // always protects its own invariant, no matter which caller sets it.
+        if (!name.trim().matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Name can only contain alphabet letters.");
+        }
         this.name = name;
     }
 

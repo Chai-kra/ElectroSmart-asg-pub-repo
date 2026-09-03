@@ -23,6 +23,9 @@ public class CorporateCustomer extends Customer {
         if (companyName == null || companyName.trim().isEmpty()) {
             throw new IllegalArgumentException("Company name cannot be empty.");
         }
+        if (!companyName.trim().matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Company name can only contain alphabet letters.");
+        }
         this.companyName = companyName;
     }
 
@@ -33,6 +36,9 @@ public class CorporateCustomer extends Customer {
     public void setContactPerson(String contactPerson) {
         if (contactPerson == null || contactPerson.trim().isEmpty()) {
             throw new IllegalArgumentException("Contact person cannot be empty.");
+        }
+        if (!contactPerson.trim().matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Contact person can only contain alphabet letters.");
         }
         this.contactPerson = contactPerson;
     }

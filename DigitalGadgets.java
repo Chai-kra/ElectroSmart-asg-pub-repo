@@ -17,6 +17,11 @@ public class DigitalGadgets extends Appliance {
         if (operatingSystem == null || operatingSystem.isBlank()) {
             throw new IllegalArgumentException("Operating system cannot be empty.");
         }
+        // alphabet letters only, or the literal "N/A" — mirrors the
+        // ApplianceManager prompt-level check here at the object level too.
+        if (!operatingSystem.equalsIgnoreCase("N/A") && !operatingSystem.matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Operating system must be alphabet letters only, or N/A.");
+        }
         this.operatingSystem = operatingSystem;
     }
 

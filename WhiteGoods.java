@@ -17,12 +17,21 @@ public class WhiteGoods extends Appliance {
         if (energyRating == null || energyRating.isBlank()) {
             throw new IllegalArgumentException("Energy rating cannot be empty.");
         }
+        // mirrors the "1-5 star" check ApplianceManager already does at the
+        // prompt, so the object enforces it too — not just the UI layer.
+        if (!energyRating.matches("[1-5]-star")) {
+            throw new IllegalArgumentException("Energy rating must be one of 1-star to 5-star.");
+        }
         this.energyRating = energyRating;
     }
 
     public void setDimension(String dimension) {
         if (dimension == null || dimension.isBlank()) {
             throw new IllegalArgumentException("Dimension cannot be empty.");
+        }
+        // must stay in the LxWxHcm format with positive numbers only.
+        if (!dimension.matches("\\d+(\\.\\d+)?x\\d+(\\.\\d+)?x\\d+(\\.\\d+)?cm")) {
+            throw new IllegalArgumentException("Dimension must be in the format like 180x60x65cm (positive numbers only).");
         }
         this.dimension = dimension;
     }

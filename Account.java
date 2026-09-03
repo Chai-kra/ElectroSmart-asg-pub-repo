@@ -11,6 +11,17 @@ public class Account {
     private String staffID;     // links this login to a Staff record
 
     public Account(String username, String password, AccountRole role, String staffID) {
+        // guarded here too (not just by AccountManager) so the object never
+        // ends up in an invalid state, however it gets constructed.
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty.");
+        }
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty.");
+        }
+        if (role == null) {
+            throw new IllegalArgumentException("Role cannot be null.");
+        }
         this.username = username;
         this.password = password;
         this.role = role;
