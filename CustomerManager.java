@@ -39,6 +39,23 @@ public class CustomerManager {
     public List<Customer> getAllCustomers() {
         return customers;
     }
+
+    /**
+     * Tallies how many registered customers fall into each MembershipStatus
+     * tier. Uses a fixed-size array (indexed by MembershipStatus.ordinal())
+     * rather than a List, since the number of tiers is fixed at exactly 3
+     * (REGULAR/SILVER/GOLD) and will never grow or shrink at runtime — a
+     * genuine case where a plain array is the right tool, not just a List
+     * wrapped for its own sake.
+     */
+    public int[] getMembershipBreakdown() {
+        int[] counts = new int[MembershipStatus.values().length];
+        for (Customer c : customers) {
+            counts[c.getMemberShipStatus().ordinal()]++;
+        }
+        return counts;
+    }
+
     /**
      * Dummy data stuff
      */

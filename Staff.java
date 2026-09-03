@@ -47,7 +47,7 @@ public class Staff {
         return email;
     }
     public void setEmail(String email) {
-        if (email == null || !email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+        if (email == null || !email.matches(InputValidator.EMAIL_REGEX)) {  // set email
             throw new IllegalArgumentException("Invalid email format: " + email);
         }
         this.email = email;

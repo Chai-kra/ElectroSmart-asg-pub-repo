@@ -45,7 +45,7 @@ public class Driver {
         while (true) {
             System.out.print(prompt);
             String input = scanner.nextLine().trim();
-            if (!input.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+            if (!input.matches(InputValidator.EMAIL_REGEX)) {
                 System.out.println("Invalid email format — expected something like name@example.com.");
             } else {
                 return input;
@@ -77,6 +77,7 @@ public class Driver {
         CustomerManager customerManager = new CustomerManager();
         ApplianceManager applianceManager = new ApplianceManager();
         applianceManager.loadSampleData();
+        WarrantyManager warrantyManager = new WarrantyManager(applianceManager);
         StaffManager staffManager = new StaffManager();
 
         seedSampleAccounts(accountManager, staffManager);
@@ -119,7 +120,7 @@ public class Driver {
                     registerMenu(scanner, customerManager, staffManager);
                     break;
                 case "2":
-                    applianceMenu(scanner, applianceManager, customerManager, staffManager, currentAccount);
+                    applianceMenu(scanner, applianceManager, warrantyManager, customerManager, staffManager, currentAccount);
                     break;
                 case "3":
                     inventoryMenu(scanner, applianceManager);
@@ -222,8 +223,8 @@ public class Driver {
             }
         }
     }
-    private static void applianceMenu(Scanner scanner, ApplianceManager applianceManager, CustomerManager customerManager,
-                                       StaffManager staffManager, Account currentAccount) {
+    private static void applianceMenu(Scanner scanner, ApplianceManager applianceManager, WarrantyManager warrantyManager,
+                                       CustomerManager customerManager, StaffManager staffManager, Account currentAccount) {
         boolean back = false;
         while (!back) {
             clearScreen();
@@ -255,7 +256,7 @@ public class Driver {
                         break;
                     }
                     try {
-                        applianceManager.processSale(scanner, customerManager, staffManager, staff);
+                        warrantyManager.processSale(scanner, customerManager, staffManager, staff);
                     } catch (InvalidWarrantyExtensionException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
@@ -275,7 +276,7 @@ public class Driver {
                         break;
                     }
                     try {
-                        applianceManager.extendApplianceWarranty(scanner, staff);
+                        warrantyManager.extendApplianceWarranty(scanner, staff);
                     } catch (InvalidWarrantyExtensionException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
@@ -290,7 +291,7 @@ public class Driver {
                         pause(scanner);
                         break;
                     }
-                    applianceManager.fileWarrantyClaim(scanner, staff);
+                    warrantyManager.fileWarrantyClaim(scanner, staff);
                     pause(scanner);
                     break;
                 }
@@ -302,7 +303,7 @@ public class Driver {
                         pause(scanner);
                         break;
                     }
-                    applianceManager.manageWarrantyClaims(scanner, staff);
+                    warrantyManager.manageWarrantyClaims(scanner, staff);
                     pause(scanner);
                     break;
                 }
@@ -355,6 +356,7 @@ public class Driver {
             System.out.println("No customers registered yet.");
         } else {
             printCustomerTable(customerList);
+            printMembershipBreakdown(customerManager.getMembershipBreakdown());
         }
         System.out.println("\n=== All Appliances ===");
         if (applianceManager.getAllAppliances().isEmpty()) {
@@ -382,6 +384,23 @@ public class Driver {
                     c.getCustomerID(), c.getName(), c.getCustomerCategory(), c.getEmail(),
                     c.getMemberShipStatus(), (int) (c.getDiscountRate() * 100) + "%", c.getExtraInfo());
         }
+    }
+
+    /**
+     * Prints the REGULAR/SILVER/GOLD tally produced by
+     * CustomerManager.getMembershipBreakdown(). MembershipStatus.values()[i]
+     * lines up with counts[i] because the array was built off each
+     * customer's ordinal() — iterating both together here is what actually
+     * makes use of that array (not just decoration).
+     */
+    private static void printMembershipBreakdown(int[] counts) {
+        MembershipStatus[] tiers = MembershipStatus.values();
+        System.out.print("Membership breakdown: ");
+        for (int i = 0; i < counts.length; i++) {
+            System.out.print(tiers[i] + "=" + counts[i]);
+            if (i < counts.length - 1) System.out.print(", ");
+        }
+        System.out.println();
     }
     private static void seedSampleTransactions(ApplianceManager applianceManager, CustomerManager customerManager,
                                                 StaffManager staffManager) {
@@ -566,31 +585,8 @@ public class Driver {
         System.out.println("Assigned Staff ID: " + staffID);
         String name = readAlphabetOnly(scanner, "Enter Name: ");
         String role = readAlphabetOnly(scanner, "Enter Role (e.g. Sales Associate, Manager): ");
-        String email;
-        while (true) {
-            System.out.print("Enter Email: ");
-            email = scanner.nextLine().trim();
-            if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
-                System.out.println("Invalid email format.");
-            } else {
-                break;
-            }
-        }
-        double annualSalary;
-        while (true) {
-            System.out.print("Enter Annual Salary: ");
-            String salaryInput = scanner.nextLine().trim();
-            try {
-                annualSalary = Double.parseDouble(salaryInput);
-                if (annualSalary < 0) {
-                    System.out.println("Annual salary cannot be negative.");
-                    continue;
-                }
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number — please enter digits only (e.g. 45000 or 45000.50).");
-            }
-        }
+        String email = readValidEmail(scanner, "Enter Email: ");
+        double annualSalary = readNonNegativeDouble(scanner, "Enter Annual Salary: ");
         try {
             Staff newStaff = new Staff(staffID, name, role, email, annualSalary);
             staffManager.registerStaff(newStaff);
