@@ -6,7 +6,7 @@ public class CustomerManager {
     private int nextCustomerNumber = 1;
 
     /**
-     * NEW: Auto-generates the next free Customer ID (CUS001, CUS002, ...)
+     * Auto-generates the next free Customer ID (CUS001, CUS002, ...)
      * instead of asking the user to type one. Skips over any ID already
      * in use so it never collides.
      */
@@ -44,9 +44,9 @@ public class CustomerManager {
      */
     public void loadSampleData() {
         try {
-            addCustomer(new Customer("CUS001", "Aisha Rahman", "aisha.rahman@example.com", MembershipStatus.GOLD));
-            addCustomer(new Customer("CUS002", "Marcus Tan", "marcus.tan@example.com", MembershipStatus.SILVER));
-            addCustomer(new Customer("CUS003", "Priya Nair", "priya.nair@example.com", MembershipStatus.REGULAR));
+            addCustomer(new IndividualCustomer("CUS001", "Aisha Rahman", "aisha.rahman@example.com", MembershipStatus.GOLD, "990101-14-5566"));
+            addCustomer(new IndividualCustomer("CUS002", "Marcus Tan", "marcus.tan@example.com", MembershipStatus.SILVER, "880202-10-1234"));
+            addCustomer(new CorporateCustomer("CUS003", "Priya Nair", "priya.nair@example.com", MembershipStatus.REGULAR, "Nair Enterprises", "Priya Nair"));
             nextCustomerNumber = 4;
         } catch (DuplicateCustomerException | IllegalArgumentException e) {
             // Sample data is known-valid; this should never happen; But hey just in case amirite

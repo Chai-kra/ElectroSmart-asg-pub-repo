@@ -1,0 +1,49 @@
+/**
+ * A Customer who represents a company (a corporate account). Adds a
+ * company name and a designated contact person on top of the base
+ * Customer fields — inheritance from Customer, with polymorphism via
+ * getCustomerCategory() below.
+ */
+public class CorporateCustomer extends Customer {
+    private String companyName;
+    private String contactPerson;
+
+    public CorporateCustomer(String customerID, String name, String email,
+                              MembershipStatus membershipStatus, String companyName, String contactPerson) {
+        super(customerID, name, email, membershipStatus);
+        setCompanyName(companyName);
+        setContactPerson(contactPerson);
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        if (companyName == null || companyName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Company name cannot be empty.");
+        }
+        this.companyName = companyName;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        if (contactPerson == null || contactPerson.trim().isEmpty()) {
+            throw new IllegalArgumentException("Contact person cannot be empty.");
+        }
+        this.contactPerson = contactPerson;
+    }
+
+    @Override
+    public String getCustomerCategory() {
+        return "Corporate";
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " | Company: " + companyName + " | Contact: " + contactPerson;
+    }
+}

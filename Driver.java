@@ -25,6 +25,21 @@ public class Driver {
         }
     }
 
+    /** reads a field that may only contain alphabet letters (and spaces for multi-word names). */
+    private static String readAlphabetOnly(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.println("This field cannot be empty.");
+            } else if (!input.matches("[A-Za-z ]+")) {
+                System.out.println("Only alphabet letters are allowed (no numbers or symbols).");
+            } else {
+                return input;
+            }
+        }
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
@@ -88,7 +103,7 @@ public class Driver {
                     break;
 
                 case "6":
-                    viewAllAvailableData(staffManager, applianceManager);
+                    viewAllAvailableData(staffManager, applianceManager, customerManager);
                     pause(scanner);
                     break;
                 case "7":
@@ -116,6 +131,7 @@ public class Driver {
     }
     private static Account runGate(Scanner scanner, AccountManager accountManager, StaffManager staffManager) {
         while (true) {
+            clearScreen();
             System.out.println("\n" + ORANGE_YELLOW_BANNER);
             System.out.println("==================================================================");
             System.out.println("               ELECTROSMART APPLIANCE MANAGEMENT                   ");
@@ -133,12 +149,14 @@ public class Driver {
                 Account account = accountManager.login(username, password);
                 if (account == null) {
                     System.out.println("Invalid username or password.");
+                    pause(scanner);
                 } else {
                     System.out.println("Signed in successfully.");
                     return account;
                 }
             } else if (choice.equals("2")) {
                 registerAccountAndStaff(scanner, accountManager, staffManager);
+                pause(scanner);
             } else if (choice.equals("0")) {
                 return null;
             } else {
@@ -149,6 +167,7 @@ public class Driver {
     private static void registerMenu(Scanner scanner, CustomerManager customerManager, StaffManager staffManager) {
         boolean back = false;
         while (!back) {
+            clearScreen();
             System.out.println("\n--- Register ---");
             System.out.println("1. Register customer");
             System.out.println("2. Register staff");
@@ -176,11 +195,14 @@ public class Driver {
                                        StaffManager staffManager, Account currentAccount) {
         boolean back = false;
         while (!back) {
+            clearScreen();
             System.out.println("\n--- Appliance ---");
             System.out.println("1. Add appliance");
             System.out.println("2. Process appliance sale");
             System.out.println("3. Warranty detail (by Customer ID or Appliance ID)");
             System.out.println("4. Extend warranty");
+            System.out.println("5. File a warranty claim");
+            System.out.println("6. View & settle warranty claims");
             System.out.println("0. Back");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
@@ -229,6 +251,30 @@ public class Driver {
                     pause(scanner);
                     break;
                 }
+                case "5": {
+                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
+                    if (staff == null) {
+                        System.out.println("No staff profile linked to this account yet.");
+                        System.out.println("Please register your staff profile first (Register > Register staff), using Staff ID: " + currentAccount.getStaffID());
+                        pause(scanner);
+                        break;
+                    }
+                    applianceManager.fileWarrantyClaim(scanner, staff);
+                    pause(scanner);
+                    break;
+                }
+                case "6": {
+                    Staff staff = staffManager.findByID(currentAccount.getStaffID());
+                    if (staff == null) {
+                        System.out.println("No staff profile linked to this account yet.");
+                        System.out.println("Please register your staff profile first (Register > Register staff), using Staff ID: " + currentAccount.getStaffID());
+                        pause(scanner);
+                        break;
+                    }
+                    applianceManager.manageWarrantyClaims(scanner, staff);
+                    pause(scanner);
+                    break;
+                }
                 case "0":
                     back = true;
                     break;
@@ -240,6 +286,7 @@ public class Driver {
     private static void inventoryMenu(Scanner scanner, ApplianceManager applianceManager) {
         boolean back = false;
         while (!back) {
+            clearScreen();
             System.out.println("\n--- Inventory ---");
             System.out.println("1. View low stock warnings");
             System.out.println("2. View inventory");
@@ -262,7 +309,8 @@ public class Driver {
             }
         }
     }
-    private static void viewAllAvailableData(StaffManager staffManager, ApplianceManager applianceManager) {
+    private static void viewAllAvailableData(StaffManager staffManager, ApplianceManager applianceManager,
+                                              CustomerManager customerManager) {
         System.out.println("\n=== All Staff Members ===");
         List<Staff> staffList = staffManager.getAllStaff();
         if (staffList.isEmpty()) {
@@ -270,6 +318,16 @@ public class Driver {
         } else {
             for (Staff s : staffList) {
                 System.out.println("  " + s);
+            }
+        }
+        // NEW: customer list was missing from this screen — added below.
+        System.out.println("\n=== All Customers ===");
+        List<Customer> customerList = customerManager.getAllCustomers();
+        if (customerList.isEmpty()) {
+            System.out.println("No customers registered yet.");
+        } else {
+            for (Customer c : customerList) {
+                System.out.println("  " + c);
             }
         }
         System.out.println("\n=== All Appliances ===");
@@ -430,10 +488,20 @@ public class Driver {
     }
     private static void registerCustomer(Scanner scanner, CustomerManager customerManager) {
         System.out.println("\n--- Register New Customer ---");
+        System.out.println("Customer Type:");
+        System.out.println("1. Individual");
+        System.out.println("2. Corporate");
+        String type;
+        while (true) {
+            System.out.print("Select an option: ");
+            type = scanner.nextLine().trim();
+            if (type.equals("1") || type.equals("2")) break;
+            System.out.println("Invalid option — please enter 1 or 2.");
+        }
+
         String customerID = customerManager.generateNextCustomerID();
         System.out.println("Assigned Customer ID: " + customerID);
-        System.out.print("Enter Name: ");
-        String name = scanner.nextLine().trim();
+        String name = readAlphabetOnly(scanner, "Enter Name: ");
         String email;
         while (true) {
             System.out.print("Enter Email: ");
@@ -454,7 +522,21 @@ public class Driver {
             }
         }
         try {
-            Customer newCustomer = new Customer(customerID, name, email, status);
+            Customer newCustomer;
+            if (type.equals("1")) {
+                String icNumber;
+                while (true) {
+                    System.out.print("Enter IC Number: ");
+                    icNumber = scanner.nextLine().trim();
+                    if (icNumber.isEmpty()) System.out.println("IC number cannot be empty.");
+                    else break;
+                }
+                newCustomer = new IndividualCustomer(customerID, name, email, status, icNumber);
+            } else {
+                String companyName = readAlphabetOnly(scanner, "Enter Company Name: ");
+                String contactPerson = readAlphabetOnly(scanner, "Enter Contact Person: ");
+                newCustomer = new CorporateCustomer(customerID, name, email, status, companyName, contactPerson);
+            }
             customerManager.addCustomer(newCustomer);
             System.out.println("Customer registered successfully: " + newCustomer);
         } catch (DuplicateCustomerException | IllegalArgumentException e) {
@@ -628,6 +710,7 @@ public class Driver {
                                 StaffManager staffManager, ApplianceManager applianceManager) {
         boolean back = false;
         while (!back) {
+            clearScreen();
             System.out.println("\n--- Manage Data (Admin) ---");
             System.out.println("1. Edit a customer");
             System.out.println("2. Edit a staff member");
@@ -638,12 +721,15 @@ public class Driver {
             switch (choice) {
                 case "1":
                     editCustomer(scanner, customerManager);
+                    pause(scanner);
                     break;
                 case "2":
                     editStaffMember(scanner, staffManager);
+                    pause(scanner);
                     break;
                 case "3":
                     applianceManager.editAppliance(scanner);
+                    pause(scanner);
                     break;
                 case "0":
                     back = true;

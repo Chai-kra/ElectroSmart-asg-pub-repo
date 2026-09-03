@@ -7,7 +7,7 @@ public class ApplianceManager {
     private int nextApplianceNumber = 1;
 
     /**
-     * NEW: Auto-generates the next free Appliance ID (A001, A002, ...) instead of
+     * Auto-generates the next free Appliance ID (A001, A002, ...) instead of
      * asking the admin to type one. Skips over any ID already in use (e.g. the
      * A001-A006 sample data) so it never collides.
      */
@@ -23,60 +23,34 @@ public class ApplianceManager {
         System.out.println("Add Appliance - choose type:");
         System.out.println("1. WhiteGoods");
         System.out.println("2. DigitalGadgets");
+        System.out.println("0. Back");
         String type;
         while (true) {
             System.out.print("Select an option: ");
             type = scanner.nextLine().trim();
             if (type.equals("1") || type.equals("2")) break;
-            System.out.println("Invalid option — please enter 1 or 2.");
+            if (type.equals("0")) {
+                System.out.println("Cancelled.");
+                return;
+            }
+            System.out.println("Invalid option — please enter 1, 2, or 0.");
         }
 
         String applianceID = generateNextApplianceID();
 
-        String modelName;
-        while (true) {
-            System.out.print("Model Name: ");
-            modelName = scanner.nextLine().trim();
-            if (modelName.isEmpty()) System.out.println("Model name cannot be empty.");
-            else break;
-        }
-
-        String brand;
-        while (true) {
-            System.out.print("Brand: ");
-            brand = scanner.nextLine().trim();
-            if (brand.isEmpty()) System.out.println("Brand cannot be empty.");
-            else break;
-        }
+        String modelName = readAlphabetOnly(scanner, "Model Name: ");
+        String brand = readAlphabetOnly(scanner, "Brand: ");
 
         double basePrice = readNonNegativeDouble(scanner, "Base Price: ");
         int stockQuantity = readNonNegativeInt(scanner, "Stock Quantity: ");
 
         Appliance newAppliance;
         if (type.equals("1")) {
-            String energyRating;
-            while (true) {
-                System.out.print("Energy Rating (e.g. 5-star): ");
-                energyRating = scanner.nextLine().trim();
-                if (energyRating.isEmpty()) System.out.println("Energy rating cannot be empty.");
-                else break;
-            }
-            String dimension;
-            while (true) {
-                System.out.print("Dimension (e.g. 180x60x65cm): ");
-                dimension = scanner.nextLine().trim();
-                if (dimension.isEmpty()) System.out.println("Dimension cannot be empty.");
-                else break;
-            }
+            String energyRating = readEnergyRating(scanner);
+            String dimension = readDimension(scanner);
             newAppliance = new WhiteGoods(applianceID, modelName, brand, basePrice, stockQuantity, energyRating, dimension);
         } else {
-            String operatingSystem;
-            while (true) {
-                System.out.print("Operating System (or N/A): ");
-                operatingSystem = scanner.nextLine().trim();
-                if (operatingSystem.isEmpty()) System.out.println("Operating system cannot be empty — enter N/A if not applicable.");
-                else break;
-            }
+            String operatingSystem = readOperatingSystem(scanner);
             double powerConsumption = readNonNegativeDouble(scanner, "Power Consumption (W): ");
             newAppliance = new DigitalGadgets(applianceID, modelName, brand, basePrice, stockQuantity, operatingSystem, powerConsumption);
         }
@@ -85,6 +59,83 @@ public class ApplianceManager {
         System.out.printf("Base Price RM%.2f + %s RM%.2f = Final Price RM%.2f%n",
                 newAppliance.getBasePrice(), newAppliance.getSurchargeLabel(),
                 newAppliance.getSurchargeAmount(), newAppliance.calculateFinalPrice());
+    }
+
+    /**
+     * reads a field that may only contain alphabet letters (and spaces
+     * for multi-word values like "Smart TV"). Used for Model Name and Brand.
+     */
+    private String readAlphabetOnly(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.println("This field cannot be empty.");
+            } else if (!input.matches("[A-Za-z ]+")) {
+                System.out.println("Only alphabet letters are allowed (no numbers or symbols).");
+            } else {
+                return input;
+            }
+        }
+    }
+
+    /** Energy Rating must be a whole number from 1 to 5 (no letters, no negatives). Stored/displayed as "N-star". */
+    private String readEnergyRating(Scanner scanner) {
+        while (true) {
+            System.out.print("Energy Rating (enter a number 1-5): ");
+            String input = scanner.nextLine().trim();
+            if (!input.matches("\\d+")) {
+                System.out.println("Energy rating must be a whole number between 1 and 5 (no letters, no negative numbers).");
+                continue;
+            }
+            int rating = Integer.parseInt(input);
+            if (rating < 1 || rating > 5) {
+                System.out.println("Energy rating must be between 1 and 5.");
+                continue;
+            }
+            return rating + "-star";
+        }
+    }
+
+    /** Dimension must follow the LxWxHcm format using positive numbers only, e.g. 180x60x65cm. */
+    private String readDimension(Scanner scanner) {
+        while (true) {
+            System.out.print("Dimension (e.g. 180x60x65cm): ");
+            String input = scanner.nextLine().trim();
+            if (!input.matches("\\d+(\\.\\d+)?x\\d+(\\.\\d+)?x\\d+(\\.\\d+)?cm")) {
+                System.out.println("Invalid format — use positive numbers only, like 180x60x65cm.");
+                continue;
+            }
+            return input;
+        }
+    }
+
+    /** Operating System must be alphabet letters only, or the literal value "N/A". */
+    private String readOperatingSystem(Scanner scanner) {
+        while (true) {
+            System.out.print("Operating System (or N/A): ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.println("This field cannot be empty — enter N/A if not applicable.");
+            } else if (input.equalsIgnoreCase("N/A")) {
+                return "N/A";
+            } else if (!input.matches("[A-Za-z ]+")) {
+                System.out.println("Only alphabet letters are allowed (no numbers or symbols). Enter N/A if not applicable.");
+            } else {
+                return input;
+            }
+        }
+    }
+
+    /** strictly accepts only "Y" or "N" (case-insensitive) */
+    private boolean readYesNo(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("Y")) return true;
+            if (input.equalsIgnoreCase("N")) return false;
+            System.out.println("Please enter Y or N.");
+        }
     }
 
     /**
@@ -121,12 +172,10 @@ public class ApplianceManager {
         try {
             switch (field) {
                 case "1":
-                    System.out.print("New Model Name: ");
-                    a.setModelName(scanner.nextLine().trim());
+                    a.setModelName(readAlphabetOnly(scanner, "New Model Name: "));
                     break;
                 case "2":
-                    System.out.print("New Brand: ");
-                    a.setBrand(scanner.nextLine().trim());
+                    a.setBrand(readAlphabetOnly(scanner, "New Brand: "));
                     break;
                 case "3":
                     a.setBasePrice(readNonNegativeDouble(scanner, "New Base Price: "));
@@ -136,11 +185,9 @@ public class ApplianceManager {
                     break;
                 case "5":
                     if (a instanceof WhiteGoods wg) {
-                        System.out.print("New Energy Rating: ");
-                        wg.setEnergyRating(scanner.nextLine().trim());
+                        wg.setEnergyRating(readEnergyRating(scanner));
                     } else if (a instanceof DigitalGadgets dg) {
-                        System.out.print("New Operating System: ");
-                        dg.setOperatingSystem(scanner.nextLine().trim());
+                        dg.setOperatingSystem(readOperatingSystem(scanner));
                     } else {
                         System.out.println("Invalid option.");
                         return;
@@ -148,8 +195,7 @@ public class ApplianceManager {
                     break;
                 case "6":
                     if (a instanceof WhiteGoods wg) {
-                        System.out.print("New Dimension: ");
-                        wg.setDimension(scanner.nextLine().trim());
+                        wg.setDimension(readDimension(scanner));
                     } else if (a instanceof DigitalGadgets dg) {
                         dg.setPowerConsumption(readNonNegativeDouble(scanner, "New Power Consumption: "));
                     } else {
@@ -204,20 +250,20 @@ public class ApplianceManager {
 
     public void displayInventory() {
         System.out.println("\n=== White Goods ===");
-        System.out.printf("%-8s %-18s %-10s %-14s %-15s %-6s%n", "ID", "Model", "Energy", "Dimension", "Price", "Stock");
+        System.out.printf("%-8s %-18s %-12s %-10s %-14s %-15s %-6s%n", "ID", "Model", "Brand", "Energy", "Dimension", "Price", "Stock");
         for (Appliance a : inventory) {
             if (a instanceof WhiteGoods wg) {
-                System.out.printf("%-8s %-18s %-10s %-14s RM%-13.2f %-6d%n",
-                    wg.getApplianceID(), wg.getModelName(), wg.getEnergyRating(), wg.getDimension(),
+                System.out.printf("%-8s %-18s %-12s %-10s %-14s RM%-13.2f %-6d%n",
+                    wg.getApplianceID(), wg.getModelName(), wg.getBrand(), wg.getEnergyRating(), wg.getDimension(),
                     wg.calculateFinalPrice(), wg.getStockQuantity());
             }
         }
         System.out.println("\n=== Digital Gadgets ===");
-        System.out.printf("%-8s %-18s %-15s %-14s %-15s %-6s%n", "ID", "Model", "OS", "Power(W)", "Price", "Stock");
+        System.out.printf("%-8s %-18s %-12s %-15s %-14s %-15s %-6s%n", "ID", "Model", "Brand", "OS", "Power(W)", "Price", "Stock");
         for (Appliance a : inventory) {
             if (a instanceof DigitalGadgets dg) {
-                System.out.printf("%-8s %-18s %-15s %-14.1f RM%-13.2f %-6d%n",
-                    dg.getApplianceID(), dg.getModelName(), dg.getOperatingSystem(), dg.getPowerConsumption(),
+                System.out.printf("%-8s %-18s %-12s %-15s %-14.1f RM%-13.2f %-6d%n",
+                    dg.getApplianceID(), dg.getModelName(), dg.getBrand(), dg.getOperatingSystem(), dg.getPowerConsumption(),
                     dg.calculateFinalPrice(), dg.getStockQuantity());
             }
         }
@@ -272,9 +318,18 @@ public class ApplianceManager {
             }
             if (appliance == null) break;
 
+            // an item with 0 stock can never satisfy a quantity request, so don't
+            // trap the user in an unanswerable "Quantity for..." loop — bounce them
+            // straight back to picking a different appliance.
+            if (appliance.getStockQuantity() == 0) {
+                System.out.println("\"" + appliance.getModelName() + "\" is currently out of stock (0 available). Please choose a different appliance.");
+                continue;
+            }
+
             int quantity = 0;
+            boolean itemCancelled = false;
             while (true) {
-                System.out.print("Quantity for " + appliance.getModelName() + " (Available: " + appliance.getStockQuantity() + "): ");
+                System.out.print("Quantity for " + appliance.getModelName() + " (Available: " + appliance.getStockQuantity() + ", 0 to cancel this item): ");
                 String input = scanner.nextLine().trim();
                 try {
                     quantity = Integer.parseInt(input);
@@ -282,12 +337,18 @@ public class ApplianceManager {
                     System.out.println("Invalid number — please enter a whole number.");
                     continue;
                 }
-                if (quantity <= 0) { System.out.println("Quantity must be at least 1."); continue; }
+                if (quantity == 0) { itemCancelled = true; break; }
+                if (quantity < 0) { System.out.println("Quantity must be at least 1."); continue; }
                 if (quantity > appliance.getStockQuantity()) {
                     System.out.println("Not enough stock — only " + appliance.getStockQuantity() + " available.");
                     continue;
                 }
                 break;
+            }
+
+            if (itemCancelled) {
+                System.out.println("Item cancelled.");
+                continue;
             }
 
             cartAppliances.add(appliance);
@@ -298,8 +359,7 @@ public class ApplianceManager {
                     quantity, appliance.getModelName(), appliance.getBasePrice(),
                     appliance.getSurchargeLabel(), appliance.getSurchargeAmount(),
                     appliance.calculateFinalPrice(), lineTotal);
-            System.out.print("Add another item? (Y/N): ");
-            if (!scanner.nextLine().trim().equalsIgnoreCase("Y")) addingItems = false;
+            if (!readYesNo(scanner, "Add another item? (Y/N): ")) addingItems = false;
         }
 
         if (cartAppliances.isEmpty()) {
@@ -313,7 +373,7 @@ public class ApplianceManager {
         for (int i = 0; i < cartAppliances.size(); i++) {
             Appliance a = cartAppliances.get(i);
             int qty = cartQuantities.get(i);
-            // CHANGED: now shows the base price + surcharge/levy breakdown per unit,
+            // now shows the base price + surcharge/levy breakdown per unit,
             // instead of just the already-marked-up line total, so it's clear the
             // WhiteGoods delivery surcharge / DigitalGadgets recycling levy is applied.
             System.out.printf("%d x %-20s Base RM%.2f + %s RM%.2f = RM%.2f each -> RM%.2f%n",
@@ -323,8 +383,7 @@ public class ApplianceManager {
         System.out.printf("Subtotal: RM%.2f%n", runningTotal);
         System.out.printf("Membership Discount (%s): -%.0f%%%n", customer.getMemberShipStatus(), discount * 100);
         System.out.printf("Total: RM%.2f%n", finalTotal);
-        System.out.print("Confirm sale? (Y/N): ");
-        if (!scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+        if (!readYesNo(scanner, "Confirm sale? (Y/N): ")) {
             System.out.println("Sale cancelled.");
             return;
         }
@@ -346,34 +405,8 @@ public class ApplianceManager {
 
     public void extendApplianceWarranty(Scanner scanner, Staff currentStaff)
             throws InvalidWarrantyExtensionException {
-        System.out.println("\n=== Appliances with Active Warranties ===");
-        boolean anyActive = false;
-        for (Appliance a : inventory) {
-            if (a.hasWarranty()) {
-                System.out.println(a.getApplianceID() + " | " + a + " | Warranty: " + a.getWarranty().getDurationMonths() + " months");
-                anyActive = true;
-            }
-        }
-        if (!anyActive) {
-            System.out.println("No appliances currently have an active warranty.");
-            return;
-        }
-
-        Appliance appliance = null;
-        while (appliance == null) {
-            System.out.print("\nEnter Appliance ID (0 to cancel): ");
-            String applianceID = scanner.nextLine().trim();
-            if (applianceID.equals("0")) { System.out.println("Cancelled."); return; }
-            appliance = findApplianceByID(applianceID);
-            if (appliance == null) {
-                System.out.println("No appliance found with ID \"" + applianceID + "\". Please try again.");
-                continue;
-            }
-            if (!appliance.hasWarranty()) {
-                System.out.println("This appliance has no active warranty to extend.");
-                appliance = null;
-            }
-        }
+        Appliance appliance = selectApplianceWithWarranty(scanner);
+        if (appliance == null) return;
 
         // Uses the logged-in staff passed from Driver.java
         Staff staff = currentStaff;
@@ -394,6 +427,109 @@ public class ApplianceManager {
 
         appliance.extendWarranty(extraMonths, staff);
         System.out.println("Warranty extended successfully by " + extraMonths + " months by staff member " + staff.getName() + ".");
+    }
+
+    /**
+     * NEW: File a repair claim against an appliance's active warranty.
+     */
+    public void fileWarrantyClaim(Scanner scanner, Staff currentStaff) {
+        Appliance appliance = selectApplianceWithWarranty(scanner);
+        if (appliance == null) return;
+
+        Warranty warranty = appliance.getWarranty();
+        String issue;
+        while (true) {
+            System.out.print("Describe the issue: ");
+            issue = scanner.nextLine().trim();
+            if (issue.isEmpty()) System.out.println("Issue description cannot be empty.");
+            else break;
+        }
+        double repairCost = readNonNegativeDouble(scanner, "Estimated Repair Cost (RM): ");
+
+        WarrantyClaim claim = warranty.fileClaim(issue, repairCost);
+        System.out.println("Claim filed successfully: " + claim);
+    }
+
+    /**
+     * View all claims filed against an appliance's warranty, and optionally
+     * settle one (approve/reject/complete), tracking the resulting repair cost.
+     */
+    public void manageWarrantyClaims(Scanner scanner, Staff currentStaff) {
+        Appliance appliance = selectApplianceWithWarranty(scanner);
+        if (appliance == null) return;
+
+        Warranty warranty = appliance.getWarranty();
+        List<WarrantyClaim> claims = warranty.getClaims();
+        if (claims.isEmpty()) {
+            System.out.println("No claims have been filed for this warranty yet.");
+            return;
+        }
+
+        System.out.println("\n=== Claims for Warranty " + warranty.getWarrantyID() + " ===");
+        for (WarrantyClaim c : claims) {
+            System.out.println("  " + c);
+        }
+        System.out.printf("Total repair cost (approved/completed): RM%.2f%n", warranty.getTotalRepairCost());
+
+        System.out.print("\nEnter Claim ID to settle (0 to skip): ");
+        String claimID = scanner.nextLine().trim();
+        if (claimID.equals("0")) return;
+        WarrantyClaim claim = warranty.findClaimByID(claimID);
+        if (claim == null) {
+            System.out.println("No claim found with ID \"" + claimID + "\".");
+            return;
+        }
+
+        System.out.println("New Status:");
+        System.out.println("1. APPROVED");
+        System.out.println("2. REJECTED");
+        System.out.println("3. COMPLETED");
+        System.out.print("Select an option: ");
+        String choice = scanner.nextLine().trim();
+        ClaimStatus newStatus;
+        switch (choice) {
+            case "1": newStatus = ClaimStatus.APPROVED; break;
+            case "2": newStatus = ClaimStatus.REJECTED; break;
+            case "3": newStatus = ClaimStatus.COMPLETED; break;
+            default:
+                System.out.println("Invalid option.");
+                return;
+        }
+        claim.setStatus(newStatus, currentStaff);
+        System.out.println("Claim " + claimID + " updated to " + newStatus + ".");
+    }
+
+    /** NEW: shared prompt used by warranty extension and claim handling to pick an appliance that has an active warranty. */
+    private Appliance selectApplianceWithWarranty(Scanner scanner) {
+        System.out.println("\n=== Appliances with Active Warranties ===");
+        boolean anyActive = false;
+        for (Appliance a : inventory) {
+            if (a.hasWarranty()) {
+                System.out.println(a.getApplianceID() + " | " + a + " | Warranty: " + a.getWarranty().getDurationMonths() + " months");
+                anyActive = true;
+            }
+        }
+        if (!anyActive) {
+            System.out.println("No appliances currently have an active warranty.");
+            return null;
+        }
+
+        Appliance appliance = null;
+        while (appliance == null) {
+            System.out.print("\nEnter Appliance ID (0 to cancel): ");
+            String applianceID = scanner.nextLine().trim();
+            if (applianceID.equals("0")) { System.out.println("Cancelled."); return null; }
+            appliance = findApplianceByID(applianceID);
+            if (appliance == null) {
+                System.out.println("No appliance found with ID \"" + applianceID + "\". Please try again.");
+                continue;
+            }
+            if (!appliance.hasWarranty()) {
+                System.out.println("This appliance has no active warranty.");
+                appliance = null;
+            }
+        }
+        return appliance;
     }
 
     public void loadSampleData() {

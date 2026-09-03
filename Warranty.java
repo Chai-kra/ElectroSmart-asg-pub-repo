@@ -7,6 +7,10 @@ public class Warranty {
     private boolean isExtended;
     private Staff handledBy;
 
+    // claim settlement & repair cost tracking
+    private java.util.List<WarrantyClaim> claims = new java.util.ArrayList<>();
+    private int nextClaimNumber = 1;
+
     public Warranty(String warrantyID, String serialNumber, String provider, int durationMonths) {
     this.warrantyID = warrantyID;
     this.serialNumber = serialNumber;
@@ -72,6 +76,42 @@ public class Warranty {
     }
     handledBy = staff;
     System.out.println("Warranty " + warrantyID + " is activated by " + staff.getName() + ".");
+    }
+
+    /**
+     * files a repair claim against this warranty. The claim starts as
+     * PENDING with the given estimated repair cost, and is later settled via
+     * a claim's own setStatus().
+     */
+    public WarrantyClaim fileClaim(String issueDescription, double repairCost) {
+        String claimID = "CLM-" + warrantyID + "-" + nextClaimNumber++;
+        WarrantyClaim claim = new WarrantyClaim(claimID, issueDescription, repairCost);
+        claims.add(claim);
+        return claim;
+    }
+
+    public java.util.List<WarrantyClaim> getClaims() {
+        return claims;
+    }
+
+    public WarrantyClaim findClaimByID(String claimID) {
+        for (WarrantyClaim c : claims) {
+            if (c.getClaimID().equalsIgnoreCase(claimID)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    /* total repair cost tracked across claims that have been APPROVED or COMPLETED. */
+    public double getTotalRepairCost() {
+        double total = 0;
+        for (WarrantyClaim c : claims) {
+            if (c.getStatus() == ClaimStatus.APPROVED || c.getStatus() == ClaimStatus.COMPLETED) {
+                total += c.getRepairCost();
+            }
+        }
+        return total;
     }
 
 }

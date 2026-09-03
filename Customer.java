@@ -1,4 +1,10 @@
-public class Customer {
+/**
+ * base class for customer tiers. Made abstract (rather than a plain
+ * concrete class) so IndividualCustomer and CorporateCustomer can each
+ * specialise it — inheritance/polymorphism for the Customer module,
+ * mirroring the Appliance/WhiteGoods/DigitalGadgets pattern.
+ */
+public abstract class Customer {
     private String customerID;
     private String name;
     private String email;
@@ -67,10 +73,18 @@ public class Customer {
         return membershipStatus.getDiscountRate();
     }
 
+    /**
+     * subclasses report what kind of customer they are (e.g. "Individual",
+     * "Corporate"). Declared abstract here and overridden per subclass —
+     * polymorphism drives what shows up in toString() below without Customer
+     * itself needing to know about its subclasses.
+     */
+    public abstract String getCustomerCategory();
+
     // toString to look Customer object more nicely when display
     @Override
     public String toString() {
-        return String.format("[%s] %s | %s | %s | Discount: %.0f%%",
-                customerID, name, email, membershipStatus, getDiscountRate() * 100);
+        return String.format("[%s] %s (%s) | %s | %s | Discount: %.0f%%",
+                customerID, name, getCustomerCategory(), email, membershipStatus, getDiscountRate() * 100);
     }
 }

@@ -50,6 +50,6 @@ public class Transaction {
     @Override
     public String toString() {
         return "Appliance " + applianceID + " x" + quantity + " sold to Customer " + customerID +
-                " for " + finalPrice + " by " + soldBy.getName() + " on " + saleDate;
+                " for RM" + String.format("%.2f", finalPrice) + " by " + soldBy.getName() + " on " + saleDate;
     }
 }
