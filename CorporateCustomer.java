@@ -49,6 +49,11 @@ public class CorporateCustomer extends Customer {
     }
 
     @Override
+    public String getExtraInfo() {
+        return "Company: " + companyName + " | Contact: " + contactPerson;
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " | Company: " + companyName + " | Contact: " + contactPerson;
     }

@@ -86,6 +86,13 @@ public abstract class Customer {
      */
     public abstract String getCustomerCategory();
 
+    /**
+     * subclass-specific detail line (IC number for individuals, company +
+     * contact person for corporates) — another polymorphic hook so callers
+     * (e.g. the customer table in Driver.java) don't need instanceof checks.
+     */
+    public abstract String getExtraInfo();
+
     // toString to look Customer object more nicely when display
     @Override
     public String toString() {

@@ -347,25 +347,40 @@ public class Driver {
         if (staffList.isEmpty()) {
             System.out.println("No staff members registered yet.");
         } else {
-            for (Staff s : staffList) {
-                System.out.println("  " + s);
-            }
+            printStaffTable(staffList);
         }
-        // NEW: customer list was missing from this screen — added below.
         System.out.println("\n=== All Customers ===");
         List<Customer> customerList = customerManager.getAllCustomers();
         if (customerList.isEmpty()) {
             System.out.println("No customers registered yet.");
         } else {
-            for (Customer c : customerList) {
-                System.out.println("  " + c);
-            }
+            printCustomerTable(customerList);
         }
         System.out.println("\n=== All Appliances ===");
         if (applianceManager.getAllAppliances().isEmpty()) {
             System.out.println("No appliances in inventory yet.");
         } else {
             applianceManager.displayInventory();
+        }
+    }
+
+    /** Tabular staff listing — same column-based layout as ApplianceManager's displayInventory(), for a consistent look across every list screen. */
+    private static void printStaffTable(List<Staff> staffList) {
+        System.out.printf("%-8s %-18s %-16s %-28s %-14s%n", "ID", "Name", "Role", "Email", "Monthly Salary");
+        for (Staff s : staffList) {
+            System.out.printf("%-8s %-18s %-16s %-28s RM%-12.2f%n",
+                    s.getStaffID(), s.getName(), s.getRole(), s.getEmail(), s.getMonthlySalary());
+        }
+    }
+
+    /** Tabular customer listing — same layout style as the staff/appliance tables. getExtraInfo() is polymorphic, so this needs no instanceof check for Individual vs Corporate. */
+    private static void printCustomerTable(List<Customer> customerList) {
+        System.out.printf("%-8s %-18s %-11s %-26s %-11s %-9s %s%n",
+                "ID", "Name", "Category", "Email", "Membership", "Discount", "Details");
+        for (Customer c : customerList) {
+            System.out.printf("%-8s %-18s %-11s %-26s %-11s %-9s %s%n",
+                    c.getCustomerID(), c.getName(), c.getCustomerCategory(), c.getEmail(),
+                    c.getMemberShipStatus(), (int) (c.getDiscountRate() * 100) + "%", c.getExtraInfo());
         }
     }
     private static void seedSampleTransactions(ApplianceManager applianceManager, CustomerManager customerManager,
@@ -523,12 +538,12 @@ public class Driver {
             if (type.equals("1")) {
                 String icNumber;
                 while (true) {
-                    System.out.print("Enter IC Number (e.g. 990101-14-5566): ");
+                    System.out.print("Enter IC Number (format: 990101-14-5566): ");
                     icNumber = scanner.nextLine().trim();
                     if (icNumber.isEmpty()) {
                         System.out.println("IC number cannot be empty.");
-                    } else if (!icNumber.matches("\\d{6}-?\\d{2}-?\\d{4}")) {
-                        System.out.println("IC number must be 12 digits, e.g. 990101-14-5566.");
+                    } else if (!icNumber.matches("\\d{6}-\\d{2}-\\d{4}")) {
+                        System.out.println("IC number must follow the format 990101-14-5566 (dashes required).");
                     } else {
                         break;
                     }

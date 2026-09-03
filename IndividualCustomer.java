@@ -20,9 +20,9 @@ public class IndividualCustomer extends Customer {
         if (icNumber == null || icNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("IC number cannot be empty.");
         }
-        // Malaysian IC format: YYMMDD-PB-###G (12 digits, digits only).
-        if (!icNumber.trim().matches("\\d{6}-?\\d{2}-?\\d{4}")) {
-            throw new IllegalArgumentException("IC number must be 12 digits, e.g. 990101-14-5566.");
+        // Malaysian IC format: YYMMDD-PB-###G — dashes required, matching the format shown to the user.
+        if (!icNumber.trim().matches("\\d{6}-\\d{2}-\\d{4}")) {
+            throw new IllegalArgumentException("IC number must follow the format 990101-14-5566 (dashes required).");
         }
         this.icNumber = icNumber;
     }
@@ -30,6 +30,11 @@ public class IndividualCustomer extends Customer {
     @Override
     public String getCustomerCategory() {
         return "Individual";
+    }
+
+    @Override
+    public String getExtraInfo() {
+        return "IC: " + icNumber;
     }
 
     @Override

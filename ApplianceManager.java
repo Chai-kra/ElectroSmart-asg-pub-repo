@@ -437,12 +437,35 @@ public class ApplianceManager {
         if (appliance == null) return;
 
         Warranty warranty = appliance.getWarranty();
-        String issue;
-        while (true) {
-            System.out.print("Describe the issue: ");
-            issue = scanner.nextLine().trim();
-            if (issue.isEmpty()) System.out.println("Issue description cannot be empty.");
-            else break;
+
+        String issue = null;
+        while (issue == null) {
+            System.out.println("\nWhat's the issue?");
+            System.out.println("1. Not powering on / no power");
+            System.out.println("2. Physical damage (cracked / broken)");
+            System.out.println("3. Malfunctioning / not working properly");
+            System.out.println("4. Other (please describe)");
+            System.out.print("Select an option: ");
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1": issue = "Not powering on / no power"; break;
+                case "2": issue = "Physical damage (cracked / broken)"; break;
+                case "3": issue = "Malfunctioning / not working properly"; break;
+                case "4":
+                    while (true) {
+                        System.out.print("Please describe the issue: ");
+                        String custom = scanner.nextLine().trim();
+                        if (custom.isEmpty()) {
+                            System.out.println("Issue description cannot be empty.");
+                            continue;
+                        }
+                        issue = custom;
+                        break;
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid option — please enter 1, 2, 3, or 4.");
+            }
         }
         double repairCost = readNonNegativeDouble(scanner, "Estimated Repair Cost (RM): ");
 
@@ -453,66 +476,96 @@ public class ApplianceManager {
     /**
      * View all claims filed against an appliance's warranty, and optionally
      * settle one (approve/reject/complete), tracking the resulting repair cost.
+     * Every dead end (bad appliance, no claims, bad claim ID, bad status
+     * choice) loops back to a retry instead of silently returning to the
+     * outer menu, so the person always gets a clear "try again or go back".
      */
     public void manageWarrantyClaims(Scanner scanner, Staff currentStaff) {
-        Appliance appliance = selectApplianceWithWarranty(scanner);
-        if (appliance == null) return;
+        while (true) {
+            Appliance appliance = selectApplianceWithWarranty(scanner);
+            if (appliance == null) return;
 
-        Warranty warranty = appliance.getWarranty();
-        List<WarrantyClaim> claims = warranty.getClaims();
-        if (claims.isEmpty()) {
-            System.out.println("No claims have been filed for this warranty yet.");
+            Warranty warranty = appliance.getWarranty();
+            List<WarrantyClaim> claims = warranty.getClaims();
+            if (claims.isEmpty()) {
+                System.out.println("No claims have been filed for this warranty yet.");
+                if (!readYesNo(scanner, "Choose a different appliance? (Y/N): ")) return;
+                continue;
+            }
+
+            System.out.println("\n=== Claims for Warranty " + warranty.getWarrantyID() + " ===");
+            printClaimsTable(claims);
+            System.out.printf("Total repair cost (approved/completed): RM%.2f%n", warranty.getTotalRepairCost());
+
+            WarrantyClaim claim = null;
+            while (claim == null) {
+                System.out.print("\nEnter Claim ID to settle (0 to go back): ");
+                String claimID = scanner.nextLine().trim();
+                if (claimID.equals("0")) break;
+                claim = warranty.findClaimByID(claimID);
+                if (claim == null) {
+                    System.out.println("No claim found with ID \"" + claimID + "\". Please try again.");
+                }
+            }
+            if (claim == null) {
+                if (!readYesNo(scanner, "Choose a different appliance? (Y/N): ")) return;
+                continue;
+            }
+
+            ClaimStatus newStatus = null;
+            while (newStatus == null) {
+                System.out.println("\nNew Status:");
+                System.out.println("1. APPROVED");
+                System.out.println("2. REJECTED");
+                System.out.println("3. COMPLETED");
+                System.out.println("0. Cancel");
+                System.out.print("Select an option: ");
+                String choice = scanner.nextLine().trim();
+                switch (choice) {
+                    case "1": newStatus = ClaimStatus.APPROVED; break;
+                    case "2": newStatus = ClaimStatus.REJECTED; break;
+                    case "3": newStatus = ClaimStatus.COMPLETED; break;
+                    case "0":
+                        System.out.println("Cancelled.");
+                        return;
+                    default:
+                        System.out.println("Invalid option — please enter 1, 2, 3, or 0.");
+                }
+            }
+            claim.setStatus(newStatus, currentStaff);
+            System.out.println("Claim " + claim.getClaimID() + " updated to " + newStatus + ".");
             return;
         }
+    }
 
-        System.out.println("\n=== Claims for Warranty " + warranty.getWarrantyID() + " ===");
+    /** Tabular claims listing — same column-based layout as displayInventory(), for a consistent look across every list screen. */
+    private void printClaimsTable(List<WarrantyClaim> claims) {
+        System.out.printf("%-14s %-32s %-14s %-11s %-15s%n", "Claim ID", "Issue", "Repair Cost", "Status", "Settled By");
         for (WarrantyClaim c : claims) {
-            System.out.println("  " + c);
+            System.out.printf("%-14s %-32s RM%-12.2f %-11s %-15s%n",
+                    c.getClaimID(), truncate(c.getIssueDescription(), 32), c.getRepairCost(),
+                    c.getStatus(), c.getSettledBy() != null ? c.getSettledBy().getName() : "-");
         }
-        System.out.printf("Total repair cost (approved/completed): RM%.2f%n", warranty.getTotalRepairCost());
+    }
 
-        System.out.print("\nEnter Claim ID to settle (0 to skip): ");
-        String claimID = scanner.nextLine().trim();
-        if (claimID.equals("0")) return;
-        WarrantyClaim claim = warranty.findClaimByID(claimID);
-        if (claim == null) {
-            System.out.println("No claim found with ID \"" + claimID + "\".");
-            return;
-        }
-
-        System.out.println("New Status:");
-        System.out.println("1. APPROVED");
-        System.out.println("2. REJECTED");
-        System.out.println("3. COMPLETED");
-        System.out.print("Select an option: ");
-        String choice = scanner.nextLine().trim();
-        ClaimStatus newStatus;
-        switch (choice) {
-            case "1": newStatus = ClaimStatus.APPROVED; break;
-            case "2": newStatus = ClaimStatus.REJECTED; break;
-            case "3": newStatus = ClaimStatus.COMPLETED; break;
-            default:
-                System.out.println("Invalid option.");
-                return;
-        }
-        claim.setStatus(newStatus, currentStaff);
-        System.out.println("Claim " + claimID + " updated to " + newStatus + ".");
+    /** keeps table columns aligned even if a free-text description runs long. */
+    private String truncate(String text, int maxLen) {
+        if (text.length() <= maxLen) return text;
+        return text.substring(0, maxLen - 3) + "...";
     }
 
     /** NEW: shared prompt used by warranty extension and claim handling to pick an appliance that has an active warranty. */
     private Appliance selectApplianceWithWarranty(Scanner scanner) {
         System.out.println("\n=== Appliances with Active Warranties ===");
-        boolean anyActive = false;
+        List<Appliance> withWarranty = new ArrayList<>();
         for (Appliance a : inventory) {
-            if (a.hasWarranty()) {
-                System.out.println(a.getApplianceID() + " | " + a + " | Warranty: " + a.getWarranty().getDurationMonths() + " months");
-                anyActive = true;
-            }
+            if (a.hasWarranty()) withWarranty.add(a);
         }
-        if (!anyActive) {
+        if (withWarranty.isEmpty()) {
             System.out.println("No appliances currently have an active warranty.");
             return null;
         }
+        printApplianceWarrantyTable(withWarranty);
 
         Appliance appliance = null;
         while (appliance == null) {
@@ -530,6 +583,17 @@ public class ApplianceManager {
             }
         }
         return appliance;
+    }
+
+    /** Tabular appliance-with-warranty listing — same layout style as the other list screens. */
+    private void printApplianceWarrantyTable(List<Appliance> list) {
+        System.out.printf("%-8s %-18s %-12s %-13s %-10s %-8s%n", "ID", "Model", "Brand", "Warranty ID", "Duration", "Extended");
+        for (Appliance a : list) {
+            Warranty w = a.getWarranty();
+            System.out.printf("%-8s %-18s %-12s %-13s %-10s %-8s%n",
+                    a.getApplianceID(), a.getModelName(), a.getBrand(), w.getWarrantyID(),
+                    w.getDurationMonths() + " mo", w.isExtended() ? "Yes" : "No");
+        }
     }
 
     public void loadSampleData() {
