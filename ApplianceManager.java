@@ -441,16 +441,16 @@ public class ApplianceManager {
         String issue = null;
         while (issue == null) {
             System.out.println("\nWhat's the issue?");
-            System.out.println("1. Not powering on / no power");
-            System.out.println("2. Physical damage (cracked / broken)");
-            System.out.println("3. Malfunctioning / not working properly");
-            System.out.println("4. Other (please describe)");
+            System.out.println("1. Not powering");
+            System.out.println("2. Physical damage");
+            System.out.println("3. Malfunctioning");
+            System.out.println("4. Other");
             System.out.print("Select an option: ");
             String choice = scanner.nextLine().trim();
             switch (choice) {
-                case "1": issue = "Not powering on / no power"; break;
-                case "2": issue = "Physical damage (cracked / broken)"; break;
-                case "3": issue = "Malfunctioning / not working properly"; break;
+                case "1": issue = "Not powering"; break;
+                case "2": issue = "Physical damage"; break;
+                case "3": issue = "Malfunctioning"; break;
                 case "4":
                     while (true) {
                         System.out.print("Please describe the issue: ");
