@@ -173,7 +173,7 @@ public class WarrantyManager {
         }
 
         appliance.extendWarranty(extraMonths, staff);
-        System.out.println("Warranty extended successfully by " + extraMonths + " months by staff member " + staff.getName() + ".");
+        System.out.println("Warranty extended successfully by " + extraMonths + " months by staff " + staff.getName() + ".");
     }
 
     /** Files a repair claim against an appliance's active warranty. */
