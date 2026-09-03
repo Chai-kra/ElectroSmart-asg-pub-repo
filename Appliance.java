@@ -77,7 +77,7 @@ public abstract class Appliance implements WarrantyEligible {
     protected abstract String getDefaultProvider();
     protected abstract int getDefaultDuration();
 
-    /** NEW: what to call the surcharge in receipts/summaries — e.g. "Delivery Surcharge" vs "Recycling Levy". */
+    /** what to call the surcharge in receipts/summaries — e.g. "Delivery Surcharge" vs "Recycling Levy". */
     public abstract String getSurchargeLabel();
 
     @Override
