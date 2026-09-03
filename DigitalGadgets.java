@@ -32,7 +32,7 @@ public class DigitalGadgets extends Appliance {
     @Override
     protected String getDefaultProvider() { return "Store"; }
     @Override
-    protected int getDefaultDuration() { return 12; }
+    protected int getDefaultDuration() { return 12; } // default warranty month
     @Override
     public String getSurchargeLabel() { return "Recycling Levy"; }
 }

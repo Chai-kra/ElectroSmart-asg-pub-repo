@@ -63,7 +63,7 @@ public abstract class Appliance implements WarrantyEligible {
     public boolean hasWarranty() { return this.warranty != null; }
 
     /**
-     * NEW: The extra amount calculateFinalPrice() adds on top of the base price —
+     * The extra amount calculateFinalPrice() adds on top of the base price —
      * RM50 flat for WhiteGoods, 2% of base price for DigitalGadgets. Computed
      * generically here (finalPrice - basePrice) by calling the polymorphic
      * calculateFinalPrice(), so it automatically stays correct for either subclass

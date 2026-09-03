@@ -12,9 +12,9 @@ public class Customer {
             throw new IllegalArgumentException("Membership status cannot be null.");
         }
         this.customerID = customerID;
-        // CHANGED: route through the validating setters instead of assigning fields
+        // route through the validating setters instead of assigning fields
         // directly, so the constructor can't be used to bypass the same rules the
-        // setters enforce (e.g. an empty name or a malformed email).
+        // setters enforce (eg. an empty name or a malformed email).
         setName(name);
         setEmail(email);
         this.membershipStatus = membershipStatus;
@@ -58,7 +58,7 @@ public class Customer {
     }
 
     /**
-     * CHANGED: delegates to MembershipStatus.getDiscountRate() instead of
+     * delegates to MembershipStatus.getDiscountRate() instead of
      * re-implementing the same 0% / 5% / 10% mapping in a separate switch here.
      * MembershipStatus already owns that mapping — Customer just aggregates a
      * MembershipStatus and asks it for the rate, so there's one source of truth.
