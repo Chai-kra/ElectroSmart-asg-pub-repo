@@ -10,7 +10,7 @@ public class Driver {
         "\u001B[38;5;220m  |        \\|  |_\\  ___/\\  \\___|  |  |  | \\(  <_> )        \\  Y Y  \\/ __ \\|  | \\/|  |  \n" +
         "\u001B[38;5;226m /_______  /|____/\\___  >\\___  >__|  |__|   \\____/_______  /__|_|  (____  /__|   |__|  \n" +
         "\u001B[38;5;228m         \\/           \\/     \\/                          \\/      \\/     \\/          \u001B[0m";
-
+        
         private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
@@ -25,7 +25,6 @@ public class Driver {
         }
     }
 
-    /** reads a field that may only contain alphabet letters (and spaces for multi-word names). */
     private static String readAlphabetOnly(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -40,7 +39,6 @@ public class Driver {
         }
     }
 
-    /** reads and re-prompts until a valid email address (name@domain.tld) is entered. */
     private static String readValidEmail(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -52,8 +50,7 @@ public class Driver {
             }
         }
     }
-
-    /** reads and re-prompts until a non-negative number is entered (e.g. salary). */
+    
     private static double readNonNegativeDouble(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -70,7 +67,18 @@ public class Driver {
             }
         }
     }
-
+    private static final String ROLE_MANAGER = "Manager";
+    private static final String ROLE_STAFF = "Staff";
+    private static String readStaffRole(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.equals(ROLE_MANAGER) || input.equals(ROLE_STAFF)) {
+                return input;
+            }
+            System.out.println("Invalid role — must be exactly \"Manager\" or \"Staff\" (case-sensitive).");
+        }
+    }
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountManager accountManager = new AccountManager();
@@ -86,7 +94,7 @@ public class Driver {
         seedSampleTransactions(applianceManager, customerManager, staffManager);
         Account currentAccount = null;
         boolean exitProgram = false;
-        
+
         while (!exitProgram) {
             clearScreen();
             if (currentAccount == null) {
@@ -130,7 +138,7 @@ public class Driver {
                     pause(scanner);
                     break;
                 case "5":
-                    viewStaffSalesReport(scanner, staffManager);
+                    staffManager.viewStaffSalesReport(scanner);
                     pause(scanner);
                     break;
 
@@ -212,7 +220,7 @@ public class Driver {
                     pause(scanner);
                     break;
                 case "2":
-                    registerStaff(scanner, staffManager);
+                    staffManager.registerStaff(scanner);
                     pause(scanner);
                     break;
                 case "0":
@@ -344,12 +352,7 @@ public class Driver {
     private static void viewAllAvailableData(StaffManager staffManager, ApplianceManager applianceManager,
                                               CustomerManager customerManager) {
         System.out.println("\n=== All Staff Members ===");
-        List<Staff> staffList = staffManager.getAllStaff();
-        if (staffList.isEmpty()) {
-            System.out.println("No staff members registered yet.");
-        } else {
-            printStaffTable(staffList);
-        }
+        staffManager.displayStaffTable();
         System.out.println("\n=== All Customers ===");
         List<Customer> customerList = customerManager.getAllCustomers();
         if (customerList.isEmpty()) {
@@ -366,16 +369,6 @@ public class Driver {
         }
     }
 
-    /** Tabular staff listing — same column-based layout as ApplianceManager's displayInventory(), for a consistent look across every list screen. */
-    private static void printStaffTable(List<Staff> staffList) {
-        System.out.printf("%-8s %-18s %-16s %-28s %-14s%n", "ID", "Name", "Role", "Email", "Monthly Salary");
-        for (Staff s : staffList) {
-            System.out.printf("%-8s %-18s %-16s %-28s RM%-12.2f%n",
-                    s.getStaffID(), s.getName(), s.getRole(), s.getEmail(), s.getMonthlySalary());
-        }
-    }
-
-    /** Tabular customer listing — same layout style as the staff/appliance tables. getExtraInfo() is polymorphic, so this needs no instanceof check for Individual vs Corporate. */
     private static void printCustomerTable(List<Customer> customerList) {
         System.out.printf("%-8s %-18s %-11s %-26s %-11s %-9s %s%n",
                 "ID", "Name", "Category", "Email", "Membership", "Discount", "Details");
@@ -385,14 +378,7 @@ public class Driver {
                     c.getMemberShipStatus(), (int) (c.getDiscountRate() * 100) + "%", c.getExtraInfo());
         }
     }
-
-    /**
-     * Prints the REGULAR/SILVER/GOLD tally produced by
-     * CustomerManager.getMembershipBreakdown(). MembershipStatus.values()[i]
-     * lines up with counts[i] because the array was built off each
-     * customer's ordinal() — iterating both together here is what actually
-     * makes use of that array (not just decoration).
-     */
+    
     private static void printMembershipBreakdown(int[] counts) {
         MembershipStatus[] tiers = MembershipStatus.values();
         System.out.print("Membership breakdown: ");
@@ -462,7 +448,7 @@ public class Driver {
         String staffID = staffManager.generateNextStaffID();
         System.out.println("Assigned Staff ID: " + staffID);
         String name = readAlphabetOnly(scanner, "Enter Name: ");
-        String jobTitle = readAlphabetOnly(scanner, "Enter Job Title (e.g. Sales Associate, Manager): ");
+        String jobTitle = readStaffRole(scanner, "Enter Job Title (Manager/Staff): ");
         String email = readValidEmail(scanner, "Enter Email: ");
         double annualSalary = readNonNegativeDouble(scanner, "Enter Annual Salary: ");
         try {
@@ -579,89 +565,7 @@ public class Driver {
             System.out.println("Could not register customer: " + e.getMessage());
         }
     }
-    private static void registerStaff(Scanner scanner, StaffManager staffManager) {
-        System.out.println("\n--- Register New Staff ---");
-        String staffID = staffManager.generateNextStaffID();
-        System.out.println("Assigned Staff ID: " + staffID);
-        String name = readAlphabetOnly(scanner, "Enter Name: ");
-        String role = readAlphabetOnly(scanner, "Enter Role (e.g. Sales Associate, Manager): ");
-        String email = readValidEmail(scanner, "Enter Email: ");
-        double annualSalary = readNonNegativeDouble(scanner, "Enter Annual Salary: ");
-        try {
-            Staff newStaff = new Staff(staffID, name, role, email, annualSalary);
-            staffManager.registerStaff(newStaff);
-            System.out.println("Staff registered successfully: " + newStaff);
-        } catch (DuplicateStaffException | IllegalArgumentException e) {
-            System.out.println("Could not register staff: " + e.getMessage());
-        }
-    }
-    private static void viewStaffSalesReport(Scanner scanner, StaffManager staffManager) {
-        System.out.print("\nEnter Staff ID to view their sales report: ");
-        String staffID = scanner.nextLine().trim();
-        Staff staff = staffManager.findByID(staffID);
-        if (staff == null) {
-            System.out.println("No staff found with ID " + staffID);
-            return;
-        }
-        System.out.println("Sales report for " + staff);
-        List<Transaction> sales = staffManager.getSalesByStaff(staffID);
-        if (sales.isEmpty()) {
-            System.out.println("No sales recorded for this staff member yet.");
-        } else {
-            for (Transaction t : sales) {
-                System.out.println("  " + t);
-            }
-        }
-    }
     
-    private static void editStaffMember(Scanner scanner, StaffManager staffManager) {
-        System.out.print("\nEnter Staff ID to edit (0 to cancel): ");
-        String id = scanner.nextLine().trim();
-        if (id.equals("0")) return;
-        Staff staff = staffManager.findByID(id);
-        if (staff == null) {
-            System.out.println("No staff found with ID \"" + id + "\".");
-            return;
-        }
-        System.out.println("Editing: " + staff);
-        System.out.println("1. Name");
-        System.out.println("2. Role");
-        System.out.println("3. Email");
-        System.out.println("4. Annual Salary");
-        System.out.println("5. Remove this staff member");
-        System.out.println("0. Cancel");
-        System.out.print("Field to edit: ");
-        String field = scanner.nextLine().trim();
-        try {
-            switch (field) {
-                case "1":
-                    staff.setName(readAlphabetOnly(scanner, "New Name: "));
-                    break;
-                case "2":
-                    staff.setRole(readAlphabetOnly(scanner, "New Role: "));
-                    break;
-                case "3":
-                    staff.setEmail(readValidEmail(scanner, "New Email: "));
-                    break;
-                case "4":
-                    staff.setAnnualSalary(readNonNegativeDouble(scanner, "New Annual Salary: "));
-                    break;
-                case "5":
-                    staffManager.removeStaff(staff.getStaffID());
-                    System.out.println("Staff member " + id + " removed.");
-                    return;
-                case "0":
-                    System.out.println("Cancelled.");
-                    return;
-                default:
-                    System.out.println("Invalid option.");
-                    return;
-            }
-            System.out.println("Staff member updated: " + staff);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
     private static void editCustomer(Scanner scanner, CustomerManager customerManager) {
         System.out.print("\nEnter Customer ID to edit (0 to cancel): ");
         String id = scanner.nextLine().trim();
@@ -729,7 +633,7 @@ public class Driver {
                     pause(scanner);
                     break;
                 case "2":
-                    editStaffMember(scanner, staffManager);
+                    staffManager.editStaffMember(scanner);
                     pause(scanner);
                     break;
                 case "3":

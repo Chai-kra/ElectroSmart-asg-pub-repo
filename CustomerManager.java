@@ -64,7 +64,17 @@ public class CustomerManager {
             addCustomer(new IndividualCustomer("CUS001", "Aisha Rahman", "aisha.rahman@example.com", MembershipStatus.GOLD, "990101-14-5566"));
             addCustomer(new IndividualCustomer("CUS002", "Marcus Tan", "marcus.tan@example.com", MembershipStatus.SILVER, "880202-10-1234"));
             addCustomer(new CorporateCustomer("CUS003", "Priya Nair", "priya.nair@example.com", MembershipStatus.REGULAR, "Nair Enterprises", "Priya Nair"));
-            nextCustomerNumber = 4;
+            addCustomer(new IndividualCustomer("CUS004", "Hafiz Rosli", "hafiz.rosli@example.com", MembershipStatus.REGULAR, "920315-08-4321"));
+            addCustomer(new IndividualCustomer("CUS005", "Ling Mei Fen", "ling.meifen@example.com", MembershipStatus.GOLD, "870711-14-9988"));
+            addCustomer(new CorporateCustomer("CUS006", "Ganesh Kumar", "ganesh.kumar@example.com", MembershipStatus.SILVER, "Ganesh Trading Co.", "Ganesh Kumar"));
+            addCustomer(new IndividualCustomer("CUS007", "Nabila Iskandar", "nabila.iskandar@example.com", MembershipStatus.SILVER, "950528-10-2211"));
+            addCustomer(new IndividualCustomer("CUS008", "Thomas Wong", "thomas.wong@example.com", MembershipStatus.REGULAR, "890912-14-3344"));
+            addCustomer(new CorporateCustomer("CUS009", "Suraya Ismail", "suraya.ismail@example.com", MembershipStatus.GOLD, "Suraya Holdings Sdn Bhd", "Suraya Ismail"));
+            addCustomer(new IndividualCustomer("CUS010", "Vincent Lee", "vincent.lee@example.com", MembershipStatus.SILVER, "910403-08-5567"));
+            addCustomer(new IndividualCustomer("CUS011", "Kavitha Selvam", "kavitha.selvam@example.com", MembershipStatus.REGULAR, "930620-10-7788"));
+            addCustomer(new CorporateCustomer("CUS012", "Firdaus Halim", "firdaus.halim@example.com", MembershipStatus.SILVER, "Firdaus Electronics", "Firdaus Halim"));
+            addCustomer(new IndividualCustomer("CUS013", "Grace Anand", "grace.anand@example.com", MembershipStatus.GOLD, "860825-14-6699"));
+            nextCustomerNumber = 14;
         } catch (DuplicateCustomerException | IllegalArgumentException e) {
             // Sample data is known-valid; this should never happen; But hey just in case amirite
         }

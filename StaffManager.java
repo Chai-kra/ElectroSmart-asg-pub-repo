@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 public class StaffManager {
     private List<Staff> staffList = new ArrayList<>();
     private List<Transaction> transactions = new ArrayList<>();
@@ -19,6 +20,122 @@ public class StaffManager {
         }
         staffList.add(staff);
     }
+    private static final String ROLE_MANAGER = "Manager";
+    private static final String ROLE_STAFF = "Staff";
+    private String readStaffRole(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (input.equals(ROLE_MANAGER) || input.equals(ROLE_STAFF)) {
+                return input;
+            }
+            System.out.println("Invalid role — must be exactly \"Manager\" or \"Staff\" (case-sensitive).");
+        }
+    }
+    private String readValidEmail(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            if (!input.matches(InputValidator.EMAIL_REGEX)) {
+                System.out.println("Invalid email format — expected something like name@example.com.");
+            } else {
+                return input;
+            }
+        }
+    }
+    public void registerStaff(Scanner scanner) {
+        System.out.println("\n--- Register New Staff ---");
+        String staffID = generateNextStaffID();
+        System.out.println("Assigned Staff ID: " + staffID);
+        String name = InputValidator.readAlphabetOnly(scanner, "Enter Name: ");
+        String role = readStaffRole(scanner, "Enter Role (Manager/Staff): ");
+        String email = readValidEmail(scanner, "Enter Email: ");
+        double annualSalary = InputValidator.readNonNegativeDouble(scanner, "Enter Annual Salary: ");
+        try {
+            Staff newStaff = new Staff(staffID, name, role, email, annualSalary);
+            registerStaff(newStaff);
+            System.out.println("Staff registered successfully: " + newStaff);
+        } catch (DuplicateStaffException | IllegalArgumentException e) {
+            System.out.println("Could not register staff: " + e.getMessage());
+        }
+    }
+    public void viewStaffSalesReport(Scanner scanner) {
+        System.out.print("\nEnter Staff ID to view their sales report: ");
+        String staffID = scanner.nextLine().trim();
+        Staff staff = findByID(staffID);
+        if (staff == null) {
+            System.out.println("No staff found with ID " + staffID);
+            return;
+        }
+        System.out.println("Sales report for " + staff);
+        List<Transaction> sales = getSalesByStaff(staffID);
+        if (sales.isEmpty()) {
+            System.out.println("No sales recorded for this staff member yet.");
+        } else {
+            for (Transaction t : sales) {
+                System.out.println("  " + t);
+            }
+        }
+    }
+    public void editStaffMember(Scanner scanner) {
+        System.out.print("\nEnter Staff ID to edit (0 to cancel): ");
+        String id = scanner.nextLine().trim();
+        if (id.equals("0")) return;
+        Staff staff = findByID(id);
+        if (staff == null) {
+            System.out.println("No staff found with ID \"" + id + "\".");
+            return;
+        }
+        System.out.println("Editing: " + staff);
+        System.out.println("1. Name");
+        System.out.println("2. Role");
+        System.out.println("3. Email");
+        System.out.println("4. Annual Salary");
+        System.out.println("5. Remove this staff member");
+        System.out.println("0. Cancel");
+        System.out.print("Field to edit: ");
+        String field = scanner.nextLine().trim();
+        try {
+            switch (field) {
+                case "1":
+                    staff.setName(InputValidator.readAlphabetOnly(scanner, "New Name: "));
+                    break;
+                case "2":
+                    staff.setRole(readStaffRole(scanner, "New Role (Manager/Staff): "));
+                    break;
+                case "3":
+                    staff.setEmail(readValidEmail(scanner, "New Email: "));
+                    break;
+                case "4":
+                    staff.setAnnualSalary(InputValidator.readNonNegativeDouble(scanner, "New Annual Salary: "));
+                    break;
+                case "5":
+                    removeStaff(staff.getStaffID());
+                    System.out.println("Staff member " + id + " removed.");
+                    return;
+                case "0":
+                    System.out.println("Cancelled.");
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+                    return;
+            }
+            System.out.println("Staff member updated: " + staff);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    public void displayStaffTable() {
+        if (staffList.isEmpty()) {
+            System.out.println("No staff members registered yet.");
+            return;
+        }
+        System.out.printf("%-8s %-18s %-16s %-28s %-14s%n", "ID", "Name", "Role", "Email", "Monthly Salary");
+        for (Staff s : staffList) {
+            System.out.printf("%-8s %-18s %-16s %-28s RM%-12.2f%n",
+                    s.getStaffID(), s.getName(), s.getRole(), s.getEmail(), s.getMonthlySalary());
+        }
+    }
     public Staff findByID(String staffID) {
         for (Staff s : staffList) {
             if (s.getStaffID().equalsIgnoreCase(staffID)) {
@@ -30,17 +147,12 @@ public class StaffManager {
     public List<Staff> getAllStaff() {
         return staffList;
     }
-    /**
-     * Loads a small set of sample staff members so the system's features
-     * (sales, reports, etc.) can be demonstrated immediately.
-     */
     public void loadSampleData() {
         try {
             registerStaff(new Staff("STF001", "Wei Ling", "Sales Associate", "wei.ling@electrosmart.com", 42000));
             registerStaff(new Staff("STF002", "Daniel Cruz", "Sales Associate", "daniel.cruz@electrosmart.com", 45000));
             nextStaffNumber = 3;
         } catch (DuplicateStaffException | IllegalArgumentException e) {
-            // Sample data is known-valid; this should never happen.
         }
     }
     public void removeStaff(String staffID) {

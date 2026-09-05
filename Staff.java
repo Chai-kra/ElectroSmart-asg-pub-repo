@@ -24,22 +24,21 @@ public class Staff {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
-        // model-level guard, mirroring Customer's setName() — the object
-        // enforces this itself instead of trusting the caller to have checked.
-        if (!name.trim().matches("[A-Za-z ]+")) {
-            throw new IllegalArgumentException("Name can only contain alphabet letters.");
-        }
+        
         this.name = name;
     }
     public String getRole() {
         return role;
     }
+    private static final String ROLE_MANAGER = "Manager";
+    private static final String ROLE_STAFF = "Staff";
     public void setRole(String role) {
         if (role == null || role.trim().isEmpty()) {
             throw new IllegalArgumentException("Role cannot be empty.");
         }
-        if (!role.trim().matches("[A-Za-z ]+")) {
-            throw new IllegalArgumentException("Role can only contain alphabet letters (e.g. Sales Associate).");
+        if (!role.equals(ROLE_MANAGER) && !role.equals(ROLE_STAFF)) {
+            throw new IllegalArgumentException(
+                    "Invalid role \"" + role + "\". Role must be exactly \"Manager\" or \"Staff\" (case-sensitive, no extra spaces).");
         }
         this.role = role;
     }
@@ -47,7 +46,7 @@ public class Staff {
         return email;
     }
     public void setEmail(String email) {
-        if (email == null || !email.matches(InputValidator.EMAIL_REGEX)) {  // set email
+        if (email == null || !email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
             throw new IllegalArgumentException("Invalid email format: " + email);
         }
         this.email = email;

@@ -206,6 +206,17 @@ public class ApplianceManager {
         inventory.add(new DigitalGadgets("A004", "Smart TV Y2", "Sony", 2000.00, 2, "Android TV", 150.0));
         inventory.add(new DigitalGadgets("A005", "Soundbar S1", "JBL", 450.00, 8, "N/A", 60.0));
         inventory.add(new DigitalGadgets("A006", "Smart TV Q9", "Samsung", 3200.00, 1, "Tizen OS", 180.0));
-        nextApplianceNumber = 7;
+        inventory.add(new WhiteGoods("A007", "Dryer D2", "Bosch", 1100.00, 6, "4-star", "60x65x85cm"));
+        inventory.add(new WhiteGoods("A008", "Dishwasher DW5", "Siemens", 1750.00, 4, "5-star", "60x60x82cm"));
+        inventory.add(new WhiteGoods("A009", "Fridge X2 Deluxe", "Samsung", 2100.00, 3, "5-star", "190x65x68cm"));
+        inventory.add(new WhiteGoods("A010", "Washer Z5 Inverter", "LG", 1450.00, 7, "5-star", "60x60x88cm"));
+        inventory.add(new WhiteGoods("A011", "Aircond C1", "Daikin", 1800.00, 9, "5-star", "80x28x19cm"));
+        inventory.add(new DigitalGadgets("A012", "Laptop Pro 14", "Dell", 4200.00, 5, "Windows 11", 65.0));
+        inventory.add(new DigitalGadgets("A013", "Smartphone G3", "Samsung", 2600.00, 12, "Android", 10.0));
+        inventory.add(new DigitalGadgets("A014", "Tablet T2", "Apple", 2300.00, 6, "iPadOS", 20.0));
+        inventory.add(new DigitalGadgets("A015", "Smart TV R4", "LG", 2800.00, 2, "WebOS", 170.0));
+        inventory.add(new DigitalGadgets("A016", "Wireless Earbuds E1", "Sony", 350.00, 15, "N/A", 5.0));
+        nextApplianceNumber = 17;
     }
+
 }
