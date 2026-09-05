@@ -504,14 +504,14 @@ public class Driver {
         System.out.println("  Extended: " + (w.isExtended() ? "Yes" : "No"));
         System.out.println("  Handled By: " + (w.getHandledBy() != null ? w.getHandledBy().getName() : "N/A"));
     }
-    private static void seedSampleAccounts(AccountManager accountManager, StaffManager staffManager) {
-        try {
-            staffManager.registerStaff(new Staff("ADM001", "Admin", "Administrator", "admin@electrosmart.com", 60000));
-            accountManager.registerAccount("Admin", "123456", AccountRole.ADMIN, "ADM001");
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to seed sample accounts: " + e.getMessage(), e);
-        }
+private static void seedSampleAccounts(AccountManager accountManager, StaffManager staffManager) {
+    try {
+        staffManager.registerStaff(new Staff("ADM001", "Admin", "Manager", "admin@electrosmart.com", 60000));
+        accountManager.registerAccount("Admin", "123456", AccountRole.ADMIN, "ADM001");
+    } catch (Exception e) {
+        throw new IllegalStateException("Failed to seed sample accounts: " + e.getMessage(), e);
     }
+}
     private static void registerCustomer(Scanner scanner, CustomerManager customerManager) {
         System.out.println("\n--- Register New Customer ---");
         System.out.println("Customer Type:");
