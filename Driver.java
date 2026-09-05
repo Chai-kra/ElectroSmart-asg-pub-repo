@@ -388,14 +388,34 @@ public class Driver {
         }
         System.out.println();
     }
-    private static void seedSampleTransactions(ApplianceManager applianceManager, CustomerManager customerManager,
-                                                StaffManager staffManager) {
-        recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS001", "STF001", 1);
-        recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS002", "STF002", 2);
-        recordSampleSale(applianceManager, customerManager, staffManager, "A003", "CUS003", "STF001", 1);
-        recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS002", "STF002", 1);
-        recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS001", "STF001", 1);
-    }
+private static void seedSampleTransactions(ApplianceManager applianceManager, CustomerManager customerManager,
+                                            StaffManager staffManager) {
+    recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS001", "STF001", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS002", "STF002", 2);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A003", "CUS003", "STF001", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS002", "STF002", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS001", "STF001", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A002", "CUS004", "STF003", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A004", "CUS005", "STF003", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A006", "CUS006", "STF003", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A009", "CUS007", "STF004", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A009", "CUS008", "STF004", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A007", "CUS009", "STF004", 2);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A008", "CUS001", "STF005", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A008", "CUS002", "STF005", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A003", "CUS003", "STF005", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A003", "CUS004", "STF001", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS005", "STF001", 2);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS006", "STF002", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS007", "STF002", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS008", "STF002", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A007", "CUS009", "STF003", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A004", "CUS001", "STF004", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A009", "CUS002", "STF005", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A001", "CUS003", "STF001", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A003", "CUS004", "STF002", 1);
+    recordSampleSale(applianceManager, customerManager, staffManager, "A005", "CUS005", "STF003", 1);
+}
     private static void recordSampleSale(ApplianceManager applianceManager, CustomerManager customerManager,
                                           StaffManager staffManager, String applianceID, String customerID,
                                           String staffID, int quantity) {

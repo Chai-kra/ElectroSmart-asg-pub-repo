@@ -147,14 +147,17 @@ public class StaffManager {
     public List<Staff> getAllStaff() {
         return staffList;
     }
-    public void loadSampleData() {
-        try {
-            registerStaff(new Staff("STF001", "Wei Ling", "Sales Associate", "wei.ling@electrosmart.com", 42000));
-            registerStaff(new Staff("STF002", "Daniel Cruz", "Sales Associate", "daniel.cruz@electrosmart.com", 45000));
-            nextStaffNumber = 3;
-        } catch (DuplicateStaffException | IllegalArgumentException e) {
-        }
+public void loadSampleData() {
+    try {
+        registerStaff(new Staff("STF001", "Wei Ling", "Staff", "wei.ling@electrosmart.com", 42000));
+        registerStaff(new Staff("STF002", "Daniel Cruz", "Manager", "daniel.cruz@electrosmart.com", 45000));
+        registerStaff(new Staff("STF003", "Nurul Huda", "Staff", "nurul.huda@electrosmart.com", 40000));
+        registerStaff(new Staff("STF004", "Kevin Lim", "Staff", "kevin.lim@electrosmart.com", 43000));
+        registerStaff(new Staff("STF005", "Farah Aziz", "Manager", "farah.aziz@electrosmart.com", 48000));
+        nextStaffNumber = 6;
+    } catch (DuplicateStaffException | IllegalArgumentException e) {
     }
+}
     public void removeStaff(String staffID) {
         Staff staff = findByID(staffID);
         if (staff == null) {
