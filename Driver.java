@@ -24,12 +24,6 @@ public class Driver {
             System.exit(0);
         }
     }
-
-    // [Q&A #13] "Is InputValidator used consistently everywhere?" Honest gap:
-    // this and readValidEmail() below duplicate InputValidator's logic
-    // instead of calling it directly. Same rule enforced in both places, so
-    // no correctness bug — but it's a leftover from a refactor that wasn't
-    // carried through 100% of the codebase (same issue in StaffManager.java).
     private static String readAlphabetOnly(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
