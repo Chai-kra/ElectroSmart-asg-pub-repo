@@ -12,6 +12,10 @@ public class Transaction {
 
     public Transaction(String applianceID, String customerID, int quantity,
             double finalPrice, Staff soldBy) {
+        // [Q&A #3] "How do you guarantee every sale is attributable to a staff
+        // member?" Constructor guard clause — a Transaction physically cannot
+        // be built without a valid Staff reference, so no code path can ever
+        // produce an anonymous sale.
         if (soldBy == null) {
             throw new IllegalArgumentException("A staff member must be supplied for soldBy.");
         }
@@ -50,6 +54,6 @@ public class Transaction {
     @Override
     public String toString() {
         return "Appliance " + applianceID + " x" + quantity + " sold to Customer " + customerID +
-                " for " + finalPrice + " by " + soldBy.getName() + " on " + saleDate;
+                " for RM" + String.format("%.2f", finalPrice) + " by " + soldBy.getName() + " on " + saleDate;
     }
 }

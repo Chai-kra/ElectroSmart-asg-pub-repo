@@ -1,12 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
-
-
 public class AccountManager {
     private List<Account> accounts = new ArrayList<>();
-
-    /** Registers a new login account. Username must be unique. */
-    public void registerAccount(String username, String password, AccountRole role)
+    public void registerAccount(String username, String password, AccountRole role, String staffID)
             throws DuplicateAccountException {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty.");
@@ -17,19 +13,8 @@ public class AccountManager {
         if (findByUsername(username) != null) {
             throw new DuplicateAccountException("Username " + username + " is already taken.");
         }
-        accounts.add(new Account(username, password, role));
+        accounts.add(new Account(username, password, role, staffID));
     }
-
-    public Account findByUsername(String username) {
-        for (Account a : accounts) {
-            if (a.getUsername().equals(username)) {
-                return a;
-            }
-        }
-        return null;
-    }
-
-    /** Returns the matching account if the username/password pair is correct, else null. */
     public Account login(String username, String password) {
         Account account = findByUsername(username);
         if (account != null && account.getPassword().equals(password)) {
@@ -37,13 +22,15 @@ public class AccountManager {
         }
         return null;
     }
-
-    public List<Account> getAccounts() {
+    public List<Account> getAllAccounts() {
         return accounts;
     }
-
-    /** Admin-only: wipes every login account. */
-    public void clearAll() {
-        accounts.clear();
+    public Account findByUsername(String username) {
+        for (Account a : accounts) {
+            if (a.getUsername().equalsIgnoreCase(username)) {
+                return a;
+            }
+        }
+        return null;
     }
 }

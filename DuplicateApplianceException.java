@@ -2,8 +2,8 @@
 // Represents an expected business-rule violation (not a bug) — checked so
 // every call site is forced to handle it explicitly via catch. See
 // StaffManager.registerStaff() / Warranty.extendWarranty() for throw sites.
-public class DuplicateAccountException extends Exception {
-    public DuplicateAccountException(String message) {
+public class DuplicateApplianceException extends Exception {
+    public DuplicateApplianceException(String message) {
         super(message);
     }
 }

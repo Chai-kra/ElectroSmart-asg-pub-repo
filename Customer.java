@@ -1,68 +1,106 @@
- public class Customer{
+/**
+ * base class for customer tiers. Made abstract (rather than a plain
+ * concrete class) so IndividualCustomer and CorporateCustomer can each
+ * specialise it — inheritance/polymorphism for the Customer module,
+ * mirroring the Appliance/WhiteGoods/DigitalGadgets pattern.
+ */
+public abstract class Customer {
     private String customerID;
     private String name;
     private String email;
     private MembershipStatus membershipStatus;
 
-  
-    public Customer(String customerID,String name,String email,MembershipStatus membershipStatus){
-        this.customerID=customerID;
-        this.name=name;
-        this.email=email;
-        this.membershipStatus=membershipStatus;
+    public Customer(String customerID, String name, String email, MembershipStatus membershipStatus) {
+        if (customerID == null || customerID.trim().isEmpty()) {
+            throw new IllegalArgumentException("Customer ID cannot be empty.");
+        }
+        if (membershipStatus == null) {
+            throw new IllegalArgumentException("Membership status cannot be null.");
+        }
+        this.customerID = customerID;
+        // route through the validating setters instead of assigning fields
+        // directly, so the constructor can't be used to bypass the same rules the
+        // setters enforce (eg. an empty name or a malformed email).
+        setName(name);
+        setEmail(email);
+        this.membershipStatus = membershipStatus;
     }
 
-    public String getCustomerID(){
+    public String getCustomerID() {
         return customerID;
     }
 
-    public String getName(){
-     return name;
+    public String getName() {
+        return name;
     }
 
+    // [Q&A #4] "Why validate here when the menu already validates?" This is
+    // the real guarantee, not the menu-level check — the object protects its
+    // own invariant no matter which caller (menu, test, future API) sets it.
+    // Same double-validation pattern repeats in Staff.java and Appliance.java.
     public void setName(String name) {
-            if (name == null || name.trim().isEmpty()) {
-                throw new IllegalArgumentException("Name cannot be empty.");
-            }
-            this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty.");
+        }
+        // enforced here too (not just in Driver's menus) so the object
+        // always protects its own invariant, no matter which caller sets it.
+        if (!name.trim().matches("[A-Za-z ]+")) {
+            throw new IllegalArgumentException("Name can only contain alphabet letters.");
+        }
+        this.name = name;
     }
 
-    public String getEmail(){
+    public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
-        if (email == null || !email.matches("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+        if (email == null || !email.matches(InputValidator.EMAIL_REGEX)) {
             throw new IllegalArgumentException("Invalid email format: " + email);
         }
         this.email = email;
     }
 
-    public MembershipStatus getMemberShipStatus(){
+    public MembershipStatus getMemberShipStatus() {
         return membershipStatus;
     }
 
-    public void setMembershipStatus(MembershipStatus membershipStatus){
-        this.membershipStatus=membershipStatus;
-    }
-
-    public double getDiscountRate() {
-        switch (membershipStatus) {
-            case SILVER: return 0.05;
-            case GOLD:   return 0.10;
-            case REGULAR:
-            default:     return 0.0;
+    public void setMembershipStatus(MembershipStatus membershipStatus) {
+        if (membershipStatus == null) {
+            throw new IllegalArgumentException("Membership status cannot be null.");
         }
-  
+        this.membershipStatus = membershipStatus;
     }
 
-//toString to look Customer object more nicely when display
-   @Override
+    /**
+     * delegates to MembershipStatus.getDiscountRate() instead of
+     * re-implementing the same 0% / 5% / 10% mapping in a separate switch here.
+     * MembershipStatus already owns that mapping — Customer just aggregates a
+     * MembershipStatus and asks it for the rate, so there's one source of truth.
+     */
+    public double getDiscountRate() {
+        return membershipStatus.getDiscountRate();
+    }
+
+    /**
+     * subclasses report what kind of customer they are (e.g. "Individual",
+     * "Corporate"). Declared abstract here and overridden per subclass —
+     * polymorphism drives what shows up in toString() below without Customer
+     * itself needing to know about its subclasses.
+     */
+    public abstract String getCustomerCategory();
+
+    /**
+     * subclass-specific detail line (IC number for individuals, company +
+     * contact person for corporates) — another polymorphic hook so callers
+     * (e.g. the customer table in Driver.java) don't need instanceof checks.
+     */
+    public abstract String getExtraInfo();
+
+    // toString to look Customer object more nicely when display
+    @Override
     public String toString() {
-        return String.format("[%s] %s | %s | %s | Discount: %.0f%%",
-                customerID, name, email, membershipStatus, getDiscountRate() * 100);
+        return String.format("[%s] %s (%s) | %s | %s | Discount: %.0f%%",
+                customerID, name, getCustomerCategory(), email, membershipStatus, getDiscountRate() * 100);
     }
-} 
-
-
-
+}
